@@ -27,7 +27,7 @@ logs.logger.propagate = False
 
 # create vladiator class for airport_out.csv
 class AirportTripsValidator(Vlad):
-    """Vladiate validator class for the airport model trips output
+    """ Vladiate validator class for the airport model trips output
         comma-delimited file specifying the file schema.
 
     AirportTripsValidator(
@@ -136,7 +136,7 @@ class AirportTripsValidator(Vlad):
 
 # create vladiator class for crossBorderTours.csv
 class CrossBorderToursValidator(Vlad):
-    """Vladiate validator class for the cross border model tour output
+    """ Vladiate validator class for the cross border model tour output
         comma-delimited file specifying the file schema.
 
     CrossBorderToursValidator(
@@ -197,6 +197,367 @@ class CrossBorderToursValidator(Vlad):
             # 2 - Shared Ride 2
             # 3 - Shared Ride 3+
             # 4 - Walk
+        ]
+    }
+
+
+# create vladiator class for crossBorderTrips.csv
+class CrossBorderTripsValidator(Vlad):
+    """ Vladiate validator class for the cross border model trip output
+        comma-delimited file specifying the file schema.
+
+    CrossBorderTripsValidator(
+        source=LocalFile("../test_files/output/crossBorderTrips.csv")
+        ).validate()
+    """
+    validators = {
+        "tourID": [
+            IntValidator(),
+            UniqueValidator(unique_with=["tripID"])
+            # file ordered by ["tourID", "tripID"]
+        ],
+        "tripID": [
+            IntValidator(),
+            # file ordered by ["tourID", "tripID"]
+        ],
+        "originPurp": [
+            SetValidator(["-1", "0", "1", "2", "3", "4", "5"])
+            # -1 - Unknown
+            # 0 - Work
+            # 1 - School
+            # 2 - Shop
+            # 3 - Cargo
+            # 4 - Visit
+            # 5 - Other
+        ],
+        "destPurp": [
+            SetValidator(["-1", "0", "1", "2", "3", "4", "5"])
+            # -1 - Unknown
+            # 0 - Work
+            # 1 - School
+            # 2 - Shop
+            # 3 - Cargo
+            # 4 - Visit
+            # 5 - Other
+        ],
+        "originMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "destinationMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "originTAZ": [  # remove
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "destinationTAZ": [  # remove
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "inbound": [
+            SetValidator(["false", "true"])
+        ],
+        "originIsTourDestination": [  # remove
+            SetValidator(["false", "true"])
+        ],
+        "destinationIsTourDestination": [  # remove
+            SetValidator(["false", "true"])
+        ],
+        "period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "tripMode": [
+            SetValidator([str(x) for x in range(1, 16)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+        ],
+        "boardingTap": [
+            IntValidator()
+        ],
+        "alightingTap": [
+            IntValidator()
+        ]
+    }
+
+
+# create vladiator class for internalExternalTrips.csv
+class InternalExternalTripsValidator(Vlad):
+    """ Vladiate validator class for the internal external trips output
+        comma-delimited file specifying the file schema.
+
+    InternalExternalTripsValidator(
+        source=LocalFile("../test_files/output/internalExternalTrips.csv")
+        ).validate()
+    """
+    validators = {
+        # note there is no unique identifier in this file, no tripID
+        "hhID": [
+            IntValidator()
+        ],
+        "pnum": [  # remove either pnum or personID
+            IntValidator()
+        ],
+        "personID": [  # remove either pnum or personID
+            IntValidator()
+        ],
+        "tourID": [  # what does this map to?
+            IntValidator()
+        ],
+        "originMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "destinationMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "originTAZ": [  # remove
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "destinationTAZ": [  # remove
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "inbound": [
+            SetValidator(["false", "true"])
+        ],
+        "originIsTourDestination": [  # remove
+            SetValidator(["false", "true"])
+        ],
+        "destinationIsTourDestination": [  # remove
+            SetValidator(["false", "true"])
+        ],
+        "period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "tripMode": [
+            SetValidator([str(x) for x in range(1, 16)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+        ],
+        "boardingTap": [
+            IntValidator()
+        ],
+        "alightingTap": [
+            IntValidator()
+        ]
+    }
+
+
+# create vladiator class for visitorTours.csv
+class VisitorToursValidator(Vlad):
+    """ Vladiate validator class for the visitor model tours output
+        comma-delimited file specifying the file schema.
+
+    VisitorToursValidator(
+        source=LocalFile("../test_files/output/visitorTours.csv")
+        ).validate()
+    """
+    validators = {
+        "id": [
+            IntValidator(),
+            UniqueValidator()
+            # ordered surrogate key
+        ],
+        "segment": [
+            SetValidator(["0", "1"])
+            # 0 - Business
+            # 1 - Personal
+        ],
+        "purpose": [
+            SetValidator(["0", "1", "2"])
+            # 0 - Work
+            # 1 - Recreation
+            # 2 - Dining
+        ],
+        "autoAvailable": [
+            SetValidator(["0", "1"])
+            # 0 - No
+            # 1 - Yes
+        ],
+        "partySize": [
+            SetValidator([str(x) for x in range(1, 11)])
+            # party size 1-10+
+        ],
+        "income": [
+            SetValidator(["0", "1", "2", "3", "4"])
+            # 0 - Less than 30k
+            # 1 - 30k-60k
+            # 2 - 60k-100k
+            # 3 - 100k-150k
+            # 4 - 150k
+        ],
+        "departTime": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "arriveTime": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "originMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "destinationMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "tourMode": [
+            SetValidator([str(x) for x in range(1, 28)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
+            # 26 - School Bus
+            # 27 - Taxi
+        ],
+        "outboundStops": [  # remove
+            IntValidator()
+        ],
+        "inboundStops": [  # remove
+            IntValidator()
+        ]
+    }
+
+
+# create vladiator class for visitorTrips.csv
+class VisitorTripsValidator(Vlad):
+    """Vladiate validator class for the visitor model trips output
+        comma-delimited file specifying the file schema.
+
+    VisitorTripsValidator(
+        source=LocalFile("test_files/visitorTrips.csv")
+        ).validate()
+    """
+    validators = {
+        "tourID": [  # note the file is sorted by tourID, tripID
+            IntValidator(),
+            UniqueValidator(unique_with=["tripID"])
+        ],
+        "tripID": [
+            IntValidator()
+        ],
+        "originPurp": [
+            SetValidator(["-1", "0", "1", "2"])
+            # -1 - Unknown
+            # 0 - Work
+            # 1 - Recreation
+            # 2 - Dining
+        ],
+        "destPurp": [
+            SetValidator(["-1", "0", "1", "2"])
+            # -1 - Unknown
+            # 0 - Work
+            # 1 - Recreation
+            # 2 - Dining
+        ],
+        "originMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "destinationMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "inbound": [
+            SetValidator(["false", "true"])
+        ],
+        "originIsTourDestination": [
+            SetValidator(["false", "true"])
+        ],
+        "destinationIsTourDestination": [
+            SetValidator(["false", "true"])
+        ],
+        "period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "tripMode": [
+            SetValidator([str(x) for x in range(1, 28)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
+            # 26 - School Bus
+            # 27 - Taxi
+        ],
+        "boardingTap": [
+            IntValidator()
+        ],
+        "alightingTap": [
+            IntValidator()
         ]
     }
 
@@ -1451,110 +1812,6 @@ class CVMTripValidator(Vlad):
         super(CVMTripValidator, self).__init__(*args, **kwargs)
 
 
-# create vladiator class for visitorTours.csv
-class VisitorToursValidator(Vlad):
-    """Vladiate validator class for the visitor model tours output
-        comma-delimited file specifying the file schema.
-
-    VisitorToursValidator(source=LocalFile("test_files/visitorTours.csv")).validate()
-    """
-    validators = {
-        "id": [  # note the file is sorted by id, looks like a surrogate key/identity column
-            IntValidator(),
-            UniqueValidator()
-
-        ],
-        "segment": [
-            SetValidator(["0", "1"])
-        ],
-        "purpose": [
-            SetValidator(["0", "1", "2"])
-        ],
-        "autoAvailable": [  # should be boolean?
-            SetValidator(["0", "1"])
-        ],
-        "partySize": [
-            IntValidator(),
-            RangeValidator(1, 10)
-        ],
-        "income": [
-            SetValidator(["0", "1", "2", "3", "4"])
-        ],
-        "departTime": [
-            SetValidator([str(x) for x in range(1, 41)])
-        ],
-        "arriveTime": [
-            SetValidator([str(x) for x in range(1, 41)])
-        ],
-        "originMGRA": [
-            SetValidator([str(x) for x in range(1, 23003)])
-        ],
-        "destinationMGRA": [
-            SetValidator([str(x) for x in range(1, 23003)])
-        ],
-        "tourMode": [
-            SetValidator([str(x) for x in range(1, 28)])
-        ],
-        "outboundStops": [
-            IntValidator()
-        ],
-        "inboundStops": [
-            IntValidator()
-        ]
-    }
-
-
-# create vladiator class for visitorTrips.csv
-class VisitorTripsValidator(Vlad):
-    """Vladiate validator class for the visitor model trips output
-        comma-delimited file specifying the file schema.
-
-    VisitorTripsValidator(source=LocalFile("test_files/visitorTrips.csv")).validate()
-    """
-    validators = {
-        "tourID": [  # note the file is sorted by tourID, tripID
-            IntValidator(),
-            UniqueValidator(unique_with=["tripID"])
-        ],
-        "tripID": [
-            IntValidator()
-        ],
-        "originPurp": [
-            SetValidator(["-1", "0", "1", "2"])
-        ],
-        "destPurp": [
-            SetValidator(["-1", "0", "1", "2"])
-        ],
-        "originMGRA": [
-            SetValidator([str(x) for x in range(1, 23003)])
-        ],
-        "destinationMGRA": [
-            SetValidator([str(x) for x in range(1, 23003)])
-        ],
-        "inbound": [
-            SetValidator(["false", "true"])
-        ],
-        "originIsTourDestination": [
-            SetValidator(["false", "true"])
-        ],
-        "destinationIsTourDestination": [
-            SetValidator(["false", "true"])
-        ],
-        "period": [
-            SetValidator([str(x) for x in range(1, 41)])
-        ],
-        "tripMode": [
-            SetValidator([str(x) for x in range(1, 28)])
-        ],
-        "boardingTap": [
-            IntValidator()
-        ],
-        "alightingTap": [
-            IntValidator()
-        ]
-    }
-
-
 # create vladiator class for walkMgraEquivMinutes.csv
 class WalkMgraEquivMinutesValidator(Vlad):
     """Vladiate validator class for the MGRA-based walk time from MGRA-MGRA
@@ -1617,3 +1874,4 @@ class WalkMgraTapEquivMinutesValidator(Vlad):
             IntValidator()
         ]
     }
+
