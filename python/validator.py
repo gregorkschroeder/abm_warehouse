@@ -1,17 +1,18 @@
-from itertools import chain
 import logging
 import os
-from vladiate import Vlad  # https://github.com/di/vladiate
-from vladiate.validators import UniqueValidator, SetValidator, FloatValidator,\
-    RangeValidator, IntValidator, NotEmptyValidator, Ignore, RegexValidator
-from vladiate.inputs import LocalFile
-from vladiate import logs
+from itertools import chain
 
-# remove the validation log file if it exists
-log_path = "./log_files/validator_log.txt"
+from vladiate import Vlad  # https://github.com/di/vladiate
+from vladiate import logs
+from vladiate.inputs import LocalFile
+from vladiate.validators import UniqueValidator, SetValidator, FloatValidator, \
+    RangeValidator, IntValidator, Ignore, RegexValidator
+
+# initialize empty logfile
+log_path = "../log_files/validator_log.txt"
 try:
     os.remove(log_path)
-except OSError:
+except OSError as e:
     pass
 
 # overwrite the vladiate package logger to write to an output file
@@ -24,91 +25,109 @@ logs.logger.addHandler(sh)
 logs.logger.propagate = False
 
 
-# create vladiator class for airporttrips.csv
+# create vladiator class for airport_out.csv
 class AirportTripsValidator(Vlad):
     """Vladiate validator class for the airport model trips output
         comma-delimited file specifying the file schema.
 
-    AirportTripsValidator(source=LocalFile("test_files/airporttrips.csv")).validate()
+    AirportTripsValidator(source=LocalFile("../test_files/output/airport_out.csv")).validate()
     """
     validators = {
-        "ID": [  # note the file is sorted by id, looks like an ordered surrogate key
+        "id": [
             IntValidator(),
             UniqueValidator()
+            # ordered surrogate key
         ],
-        "DIRECTION": [
+        "direction": [
             SetValidator(["0", "1"])
+            # 0 - origin is airport MGRA
+            # 1 - destination is airport MGRA
         ],
-        "PURPOSE": [
+        "purpose": [
             SetValidator(["0", "1", "2", "3", "4"])
+            # 0 - Resident Business
+            # 1 - Resident Personal
+            # 2 - Visitor Business
+            # 3 - Visitor Personal
+            # 4 - External
         ],
-        "SIZE": [
-            IntValidator(),
-            RangeValidator(1, 5)
+        "size": [
+            SetValidator(["0", "1", "2", "3", "4", "5"])
+            # party size 1-5+
         ],
-        "INCOME": [
+        "income": [
             SetValidator(["0", "1", "2", "3", "4", "5", "6", "7"])
+            # 0 - Less than 25k
+            # 1 - 25k-50k
+            # 2 - 50k-75k
+            # 3 - 75k-100k
+            # 4 - 100k-125k
+            # 5 - 125k-150k
+            # 6 - 150k-200k
+            # 7 - 200k+
         ],
-        "NIGHTS": [
-            IntValidator(),
-            RangeValidator(0, 14)
+        "nights": [
+            SetValidator([str(x) for x in range(0, 15)])
+            # nights stayed 0-14+
         ],
-        "DEPARTTIME": [  # where is arrive time
+        "departTime": [
             SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
         ],
-        "ORIGINMGRA": [
+        "originMGRA": [
             SetValidator([str(x) for x in chain(range(-99, -98), range(1, 23003))])
         ],
-        "DESTINATIONMGRA": [
+        "destinationMGRA": [
             SetValidator([str(x) for x in chain(range(-99, -98), range(1, 23003))])
         ],
-        "TRIPMODE": [
-            SetValidator([str(x) for x in chain(range(-99, -98), range(1, 28))])
+        "tripMode": [
+            SetValidator([str(x) for x in chain(range(-99, -98), range(1, 26))])
+            # -99 - Uknown
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
         ],
-        "ARRIVALMODE": [
-            SetValidator([str(x) for x in chain(range(-99, -98), range(1, 28))])
+        "arrivalMode": [
+            SetValidator([str(x) for x in chain(range(-99, -98), range(1, 10))])
+            # 1 - Parking lot terminal
+            # 2 - Parking lot off-site San Diego Airport area
+            # 3 - Parking lot off-site private
+            # 4 - Pickup/Drop-off escort
+            # 5 - Pickup/Drop-off curbside
+            # 6 - Rental car
+            # 7 - Taxi
+            # 8 - Shuttle/Van/Courtesy Vehicle
+            # 9 - Transit
         ],
-        "BOARDINGTAP": [
+        "boardingTAP": [
             IntValidator()
         ],
-        "ALIGHTINGTAP": [
+        "alightingTAP": [
             IntValidator()
-        ],
-        "TRIP_TIME": [
-            RegexValidator(pattern="[-]{0,1}([0-9]{1,5}){1}(\.[0-9]{1,6}){0,1}"),
-            FloatValidator()
-        ],
-        "OUT_VEHICLE_TIME": [
-            RegexValidator(pattern="([-]{0,1}[0-9]{1,5}){1}(\.[0-9]{1,6}){0,1}"),
-            FloatValidator()
-        ],
-        "TRIP_DISTANCE": [
-            RegexValidator(pattern="([-]{0,1}[0-9]{1,4}){1}(\.[0-9]{1,10}){0,1}"),
-            FloatValidator()
-        ],
-        "TRIP_COST": [  # integers with all 0 decimals...why? should just be integers
-            RegexValidator(pattern="([-]{0,1}[0-9]{1,2}){1}(\.[0-9]{1,2}){0,1}"),
-            FloatValidator()
-        ],
-        "TRIP_PURPOSE_NAME": [
-            SetValidator(["AIRPORT", "HOME"])
-        ],
-        "TRIP_MODE_NAME": [
-            SetValidator(["SHARED2HOV", "SHARED3HOV", "WALK_BRT", "SHARED2GP",
-                          "WALK_LOC", "UNKNOWN", "KNR_EXP", "SHARED3GP",
-                          "KNR_BRT", "KNR_CR", "DRIVEALONEPAY",
-                          "SHARED2PAY", "KNR_LR", "SHARED3PAY", "WALK_CR",
-                          "KNR_LOC", "WALK_LR", "WALK_EXP", "DRIVEALONEFREE"])
-        ],
-        "RECID": [  # note the file is sorted by RECID, looks like a 0-based ordered surrogate key, unnecessary with ID
-            IntValidator(),
-            UniqueValidator()
-        ],
-        "TRIP_BOARD_TAZ": [
-            SetValidator([str(x) for x in chain(range(-1, -0), range(13, 4997))])
-        ],
-        "TRIP_ALIGHT_TAZ": [
-            SetValidator([str(x) for x in chain(range(-1, -0), range(13, 4997))])
         ]
     }
 
