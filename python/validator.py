@@ -30,7 +30,9 @@ class AirportTripsValidator(Vlad):
     """Vladiate validator class for the airport model trips output
         comma-delimited file specifying the file schema.
 
-    AirportTripsValidator(source=LocalFile("../test_files/output/airport_out.csv")).validate()
+    AirportTripsValidator(
+        source=LocalFile("../test_files/output/airport_out.csv")
+        ).validate()
     """
     validators = {
         "id": [
@@ -128,6 +130,73 @@ class AirportTripsValidator(Vlad):
         ],
         "alightingTAP": [
             IntValidator()
+        ]
+    }
+
+
+# create vladiator class for crossBorderTours.csv
+class CrossBorderToursValidator(Vlad):
+    """Vladiate validator class for the cross border model tour output
+        comma-delimited file specifying the file schema.
+
+    CrossBorderToursValidator(
+        source=LocalFile("../test_files/output/crossBorderTours.csv")
+        ).validate()
+    """
+    validators = {
+        "id": [
+            IntValidator(),
+            UniqueValidator()
+            # ordered surrogate key
+        ],
+        "purpose": [
+            SetValidator(["0", "1", "2", "3", "4", "5"])
+            # 0 - Work
+            # 1 - School
+            # 2 - Shop
+            # 3 - Cargo
+            # 4 - Visit
+            # 5 - Other
+        ],
+        "sentri": [
+            SetValidator(["false", "true"])
+        ],
+        "poe": [
+            SetValidator(["0", "1", "2"])
+            # 0 - San Ysidro
+            # 1 - Otay Mesa
+            # 2 - Tecate
+        ],
+        "departTime": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "arriveTime": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "originMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "destinationMGRA": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "originTAZ": [ # remove
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "destinationTAZ": [ # remove
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "tourMode": [
+            SetValidator(["1", "2", "3", "4"])
+            # 1 - Drive Alone
+            # 2 - Shared Ride 2
+            # 3 - Shared Ride 3+
+            # 4 - Walk
         ]
     }
 

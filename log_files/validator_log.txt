@@ -1,0 +1,3 @@
+
+Validating CrossBorderToursValidator(source=LocalFile('../test_files/output/crossBorderTours.csv'))
+[0;32mPassed! :)[0m
