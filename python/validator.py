@@ -1,12 +1,11 @@
 import logging
 import os
 from itertools import chain
-
 from vladiate import Vlad  # https://github.com/di/vladiate
 from vladiate import logs
 from vladiate.inputs import LocalFile
 from vladiate.validators import UniqueValidator, SetValidator, FloatValidator, \
-    RangeValidator, IntValidator, Ignore, RegexValidator
+    RangeValidator, IntValidator, Ignore, RegexValidator, NotEmptyValidator
 
 # initialize empty logfile
 log_path = "../log_files/validator_log.txt"
@@ -25,16 +24,18 @@ logs.logger.addHandler(sh)
 logs.logger.propagate = False
 
 
-# create vladiator class for airport_out.csv
+# create vladiator class for output/airport_out.csv
 class AirportTripsValidator(Vlad):
     """ Vladiate validator class for the airport model trips output
         comma-delimited file specifying the file schema.
 
     AirportTripsValidator(
-        source=LocalFile("../test_files/output/airport_out.csv")
+        source=LocalFile("../test_files/new_files/output/airport_out.csv")
         ).validate()
     """
     validators = {
+        # no changes from old file to new file
+        # where is arriveTime? destination purpose?
         "id": [
             IntValidator(),
             UniqueValidator()
@@ -134,16 +135,74 @@ class AirportTripsValidator(Vlad):
     }
 
 
-# create vladiator class for crossBorderTours.csv
+# create vladiator class for output/bikeMgraLogsum.csv
+class BikeMgraValidator(Vlad):
+    """ Vladiate validator class for the bike mgra logsums output
+        comma-delimited file specifying the file schema.
+
+    BikeMgraValidator(
+        source=LocalFile("../test_files/new_files/output/bikeMgraLogsum.csv")
+        ).validate()
+    """
+    validators = {
+        # note the file is sorted on i, j
+        # no changes from old file to new file
+        # what is the assumed speed for bicycles in ABM model?
+        "i": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "j": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "logsum": [
+            FloatValidator()
+        ],
+        "time": [
+            FloatValidator()
+        ]
+    }
+
+
+# create vladiator class for report/commtrip.csv
+class CommercialVehicleTripsValidator(Vlad):
+    """ Vladiate validator class for the commercial vehicle model output
+        comma-delimited file specifying the file schema.
+
+    CommercialVehicleTripsValidator(
+        source=LocalFile("../test_files/new_files/report/commtrip.csv")
+        ).validate()
+    """
+    validators = {
+        # note the file is sorted on ORIG_TAZ, DEST_TAZ
+        # no changes from old file to new file
+        # mode is assumed can we write it out somehow?
+        "ORIG_TAZ": [
+            SetValidator([str(x) for x in range(13, 4997)])
+        ],
+        "DEST_TAZ": [
+            SetValidator([str(x) for x in range(13, 4997)])
+        ],
+        "TOD": [
+            SetValidator(["EA", "AM", "MD", "PM", "EV"])
+            # ABM five time of day categories
+        ],
+        "TRIPS_COMMVEH": [
+            FloatValidator()
+        ]
+    }
+
+
+# create vladiator class for output/crossBorderTours.csv
 class CrossBorderToursValidator(Vlad):
     """ Vladiate validator class for the cross border model tour output
         comma-delimited file specifying the file schema.
 
     CrossBorderToursValidator(
-        source=LocalFile("../test_files/output/crossBorderTours.csv")
+        source=LocalFile("../test_files/new_files/output/crossBorderTours.csv")
         ).validate()
     """
     validators = {
+        # removed originTAZ, destinationTAZ
         "id": [
             IntValidator(),
             UniqueValidator()
@@ -185,12 +244,6 @@ class CrossBorderToursValidator(Vlad):
         "destinationMGRA": [
             SetValidator([str(x) for x in range(1, 23003)])
         ],
-        "originTAZ": [ # remove
-            SetValidator([str(x) for x in range(1, 4997)])
-        ],
-        "destinationTAZ": [ # remove
-            SetValidator([str(x) for x in range(1, 4997)])
-        ],
         "tourMode": [
             SetValidator(["1", "2", "3", "4"])
             # 1 - Drive Alone
@@ -201,16 +254,19 @@ class CrossBorderToursValidator(Vlad):
     }
 
 
-# create vladiator class for crossBorderTrips.csv
+# create vladiator class for output/crossBorderTrips.csv
 class CrossBorderTripsValidator(Vlad):
     """ Vladiate validator class for the cross border model trip output
         comma-delimited file specifying the file schema.
 
     CrossBorderTripsValidator(
-        source=LocalFile("../test_files/output/crossBorderTrips.csv")
+        source=LocalFile("../test_files/new_files/output/crossBorderTrips.csv")
         ).validate()
     """
     validators = {
+        # removed originTAZ, destinationTAZ, originIsTourDestination,
+        #    destinationIsTourDestination
+        # where is arriveTime?
         "tourID": [
             IntValidator(),
             UniqueValidator(unique_with=["tripID"])
@@ -246,19 +302,7 @@ class CrossBorderTripsValidator(Vlad):
         "destinationMGRA": [
             SetValidator([str(x) for x in range(1, 23003)])
         ],
-        "originTAZ": [  # remove
-            SetValidator([str(x) for x in range(1, 4997)])
-        ],
-        "destinationTAZ": [  # remove
-            SetValidator([str(x) for x in range(1, 4997)])
-        ],
         "inbound": [
-            SetValidator(["false", "true"])
-        ],
-        "originIsTourDestination": [  # remove
-            SetValidator(["false", "true"])
-        ],
-        "destinationIsTourDestination": [  # remove
             SetValidator(["false", "true"])
         ],
         "period": [
@@ -294,24 +338,405 @@ class CrossBorderTripsValidator(Vlad):
     }
 
 
-# create vladiator class for internalExternalTrips.csv
+# create vladiator class for report/eetrip.csv
+class ExternalExternalValidator(Vlad):
+    """ Vladiate validator class for the External-External trips model output
+        comma-delimited file specifying the file schema.
+
+    ExternalExternalValidator(
+        source=LocalFile("../test_files/new_files/report/eetrip.csv")
+        ).validate()
+    """
+    validators = {
+        # note the file is sorted on ORIG_TAZ, DEST_TAZ
+        # no changes from old file to new file
+        # can we make TOD and mode a part of this?
+        "ORIG_TAZ": [
+            SetValidator([str(x) for x in range(1, 14)]),
+            UniqueValidator(unique_with=["DEST_TAZ"])
+        ],
+        "DEST_TAZ": [
+            SetValidator([str(x) for x in range(1, 14)])
+        ],
+        "TRIPS_EE": [
+            FloatValidator()
+        ]
+    }
+
+
+# create vladiator class for report/eitrip.csv
+class ExternalInternalValidator(Vlad):
+    """ Vladiate validator class for the External-Internal trips model output
+        comma-delimited file specifying the file schema.
+
+    ExternalInternalValidator(source=LocalFile(
+        "../test_files/new_files/report/eitrip.csv"
+        )).validate()
+    """
+    validators = {
+        # note the file is sorted on ORIG_TAZ, DEST_TAZ
+        # no changes from old file to new file
+        "ORIG_TAZ": [
+            SetValidator([str(x) for x in range(1, 4997)]),
+            UniqueValidator(unique_with=["DEST_TAZ"])
+        ],
+        "DEST_TAZ": [
+            SetValidator([str(x) for x in range(1, 4997)])
+        ],
+        "TOD": [
+            SetValidator(["EA", "AM", "MD", "PM", "EV"])
+            # ABM five time of day categories
+        ],
+        "PURPOSE": [
+            SetValidator(["NONWORK", "WORK"])
+        ],
+        "TRIPS_DAN": [
+            FloatValidator()
+            # trips Drive Alone Free
+        ],
+        "TRIPS_S2N": [
+            FloatValidator()
+            # trips Shared Ride 2 General Purpose
+            # check this is not HOV
+        ],
+        "TRIPS_S3N": [
+            FloatValidator()
+            # trips Shared Ride 3 General Purpose
+            # check this is not HOV
+        ],
+        "TRIPS_DAT": [
+            FloatValidator()
+            # trips Drive Alone Pay
+        ],
+        "TRIPS_S2T": [
+            FloatValidator()
+            # trips Shared Ride 2 Pay
+        ],
+        "TRIPS_S3T": [
+            FloatValidator()
+            # trips Shared Ride 3 Pay
+        ]
+    }
+
+
+# create vladiator class for output/householdData_<<iteration>>.csv
+class HouseholdDataValidator(Vlad):
+    """ Vladiate validator class for the household data output
+        comma-delimited file specifying the file schema.
+
+    HouseholdDataValidator(
+        source=LocalFile("../test_files/new_files/output/householdData_3.csv")
+        ).validate()
+    """
+    validators = {
+        # removed home_mgra, income, cdap_pattern, jtf_choice
+        "hh_id": [
+            IntValidator(),
+            UniqueValidator()
+            # file not sorted on hh_id
+        ],
+        "autos": [
+            SetValidator(["0", "1", "2", "3", "4"])
+            # 0 - 0 autos
+            # 1 - 1 auto
+            # 2 - 2 autos
+            # 3 - 3 autos
+            # 4 - 4+ autos
+        ],
+        "transponder": [
+            SetValidator(["0", "1"])
+            # transponder ownership
+            # 0 - No
+            # 1 - Yes
+        ]
+    }
+
+
+# create vladiator class for input/households.csv
+class HouseholdsValidator(Vlad):
+    """ Vladiate validator class for the households data input
+        comma-delimited file specifying the file schema.
+
+    HouseholdsValidator(
+        source=LocalFile("../test_files/new_files/input/households.csv")
+        ).validate()
+    """
+    validators = {
+        # cannot remove what not interested in
+        # not interested in taz, hinc, hworkers, veh
+        "hhid": [
+            IntValidator(),
+            UniqueValidator()
+            # ordered surrogate key
+        ],
+        "household_serial_no": [  # remove?
+            NotEmptyValidator()
+            # might want to use a regex validator?
+        ],
+        "taz": [
+            SetValidator([str(x) for x in range(13, 4997)])
+        ],
+        "mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "hinccat1": [
+            SetValidator(["1", "2", "3", "4", "5"])
+            # 1 - Less than 30k
+            # 2 - 30k-60k
+            # 3 - 60k-100k
+            # 4 - 100k-150k
+            # 5 - 150k
+        ],
+        "hinc": [
+            IntValidator()
+            # continuous household income
+        ],
+        "hworkers": [
+            IntValidator()
+            # number of workers in household
+        ],
+        "veh": [
+            IntValidator()
+            # number of vehicles owned in household
+            # this is NOT the same as vehicles owned in abm model
+            # that is a separate field/estimation done in the model
+        ],
+        "persons": [
+            IntValidator()
+            # number of persons in household
+        ],
+        "hht": [
+            SetValidator(["0", "1", "2", "3", "4", "5", "6", "7"])
+            # 0 - not in universe (vacant or GQ)
+            # 1 - family household: married couple
+            # 2 - family household: male householder no wife present
+            # 3 - family household: female householder no husband present
+            # 4 - non-family household: male householder living alone
+            # 5 - non-family household: male householder not living alone
+            # 6 - non-family household: female householder living alone
+            # 7 - non-family household: female householder not living alone
+        ],
+        "bldgsz": [
+            SetValidator([str(x) for x in range(1, 11)])
+            # 1 - mobile home or trailer
+            # 2 - one-family house detached
+            # 3 - one-family house attached
+            # 4 - 2 apartments
+            # 5 - 3-4 apartments
+            # 6 - 5-9 apartments
+            # 7 - 10-19 apartments
+            # 8 - 20-49 apartments
+            # 9 - 50 or more apartments
+            # 10 - boat, rv, van, etc...
+        ],
+        "unittype": [
+            SetValidator(["0", "1", "2"])
+            # 0 - household
+            # 1 - non-institutional group quarters
+            # 2 - institutional group quarters
+        ],
+        "version": [
+            IntValidator()
+            # synthetic population version number
+        ],
+        "poverty": [
+            FloatValidator()
+            # ???
+        ]
+    }
+
+
+# create vladiator class for output/indivTourData_<<iteration>>.csv
+class IndividualToursValidator(Vlad):
+    """ Vladiate validator class for the individual model tours output
+            comma-delimited file specifying the file schema.
+
+        IndividualToursValidator(
+            source=LocalFile("../test_files/new_files/output/indivTourData_3.csv")
+            ).validate()
+        """
+    validators = {
+        # note this file has no single ordered surrogate key,
+        #     huge performance implications in the model
+        # removed hh_id, person_num, person_type, tour_distance, atWork_freq,
+        #     num_ob_stops, num_ib_stops, util_1-26, prob_1-26
+        "person_id": [
+            # there are a few different unique keys we can create due to
+            # all the data duplication, this is the narrowest
+            IntValidator(),
+            UniqueValidator(unique_with=["tour_id", "tour_purpose"])
+        ],
+        "tour_id": [
+            # should just be an ordered surrogate key
+            # huge performance implications
+            IntValidator()
+        ],
+        "tour_category": [
+            SetValidator(["AT_WORK", "INDIVIDUAL_NON_MANDATORY",
+                          "MANDATORY"])
+        ],
+        "tour_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Escort",
+                          "Maintenance", "School", "Shop", "University",
+                          "Visiting", "Work", "Work-Based"])
+        ],
+        "orig_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "dest_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "start_period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "end_period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "tour_mode": [
+            SetValidator([str(x) for x in range(1, 27)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
+            # 26 - School Bus
+        ]
+    }
+
+
+# create vladiator class for output/indivTripData_<<iteration>>.csv
+class IndividualTripsValidator(Vlad):
+    """ Vladiate validator class for the individual model trips output
+            comma-delimited file specifying the file schema.
+
+        IndividualTripsValidator(
+            source=LocalFile("../test_files/new_files/output/indivTripData_3.csv")
+            ).validate()
+        """
+    validators = {
+        # note this file has no single ordered surrogate key,
+        #     huge performance implications in the model
+        # removed hh_id, person_num, tour_purpose, tour_mode
+        # why no orig and dest period?
+        "person_id": [
+            # there are a few different unique keys we can create due to
+            # all the data duplication, this is the narrowest
+            IntValidator(),
+            UniqueValidator(unique_with=["tour_id", "stop_id", "inbound", "tour_purpose"])
+        ],
+        "tour_id": [
+            IntValidator()
+        ],
+        "stop_id": [
+            IntValidator()
+        ],
+        "inbound": [
+            SetValidator(["0", "1"])
+        ],
+        "orig_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Escort", "Home",
+                          "Maintenance", "School", "Shop", "University",
+                          "Visiting", "Work", "Work-Based", "work related"])
+        ],
+        "dest_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Escort", "Home",
+                          "Maintenance", "School", "Shop", "University",
+                          "Visiting", "Work", "Work-Based", "work related"])
+        ],
+        "orig_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "dest_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "parking_mgra": [
+            SetValidator([str(x) for x in range(-1, 23003)])
+        ],
+        "stop_period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "trip_mode": [
+            SetValidator([str(x) for x in range(1, 27)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
+            # 26 - School Bus
+        ],
+        "trip_board_tap": [
+            IntValidator()
+        ],
+        "trip_alight_tap": [
+            IntValidator()
+        ]
+    }
+
+
+# create vladiator class for output/internalExternalTrips.csv
 class InternalExternalTripsValidator(Vlad):
     """ Vladiate validator class for the internal external trips output
         comma-delimited file specifying the file schema.
 
     InternalExternalTripsValidator(
-        source=LocalFile("../test_files/output/internalExternalTrips.csv")
+        source=LocalFile("../test_files/new_files/output/internalExternalTrips.csv")
         ).validate()
     """
     validators = {
         # note there is no unique identifier in this file, no tripID
-        "hhID": [
-            IntValidator()
-        ],
-        "pnum": [  # remove either pnum or personID
-            IntValidator()
-        ],
-        "personID": [  # remove either pnum or personID
+        # where is arriveTime? no purposes?
+        # removed hhID, pnum, originTAZ, destinationTAZ,
+        #     originIsTourDestination, destinationIsTourDestination,
+        "personID": [
             IntValidator()
         ],
         "tourID": [  # what does this map to?
@@ -323,19 +748,7 @@ class InternalExternalTripsValidator(Vlad):
         "destinationMGRA": [
             SetValidator([str(x) for x in range(1, 23003)])
         ],
-        "originTAZ": [  # remove
-            SetValidator([str(x) for x in range(1, 4997)])
-        ],
-        "destinationTAZ": [  # remove
-            SetValidator([str(x) for x in range(1, 4997)])
-        ],
         "inbound": [
-            SetValidator(["false", "true"])
-        ],
-        "originIsTourDestination": [  # remove
-            SetValidator(["false", "true"])
-        ],
-        "destinationIsTourDestination": [  # remove
             SetValidator(["false", "true"])
         ],
         "period": [
@@ -371,16 +784,379 @@ class InternalExternalTripsValidator(Vlad):
     }
 
 
-# create vladiator class for visitorTours.csv
+# create vladiator class for output/jointTourData_<<iteration>>.csv
+class JointToursValidator(Vlad):
+    """ Vladiate validator class for the joint model tours output
+            comma-delimited file specifying the file schema.
+
+        JointToursValidator(
+            source=LocalFile("../test_files/new_files/output/jointTourData_3.csv")
+            ).validate()
+        """
+    validators = {
+        # note this file has no single ordered surrogate key,
+        #     huge performance implications in the model
+        # removed tour_composition, tour_distance
+        #     num_ob_stops, num_ib_stops, util_1-26, prob_1-26
+        "hh_id": [
+            IntValidator(),
+            UniqueValidator(unique_with=["tour_id"])
+        ],
+        "tour_id": [
+            # should just be an ordered surrogate key
+            IntValidator()
+        ],
+        "tour_category": [
+            SetValidator(["JOINT_NON_MANDATORY"])
+        ],
+        "tour_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Shop", "Visiting"])
+        ],
+        "tour_participants": [
+            NotEmptyValidator()
+            # space separated pnum of persons on the tour
+            # if replaced by person_id could drop hh_id
+        ],
+        "orig_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "dest_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "start_period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "end_period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "tour_mode": [
+            SetValidator([str(x) for x in range(1, 27)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
+            # 26 - School Bus
+        ]
+    }
+
+
+# create vladiator class for output/jointTripData_<<iteration>>.csv
+class JointTripsValidator(Vlad):
+    """ Vladiate validator class for the joint model trips output
+            comma-delimited file specifying the file schema.
+
+        JointTripsValidator(
+            source=LocalFile("../test_files/new_files/output/jointTripData_3.csv")
+            ).validate()
+        """
+    validators = {
+        # note this file has no single ordered surrogate key,
+        #     huge performance implications in the model
+        # removed tour_purpose, num_participants, tour_mode
+        # why no orig and dest period?
+        "hh_id": [
+            IntValidator(),
+            UniqueValidator(unique_with=["tour_id", "stop_id", "inbound"])
+        ],
+        "tour_id": [
+            IntValidator()
+        ],
+        "stop_id": [
+            IntValidator()
+        ],
+        "inbound": [
+            SetValidator(["0", "1"])
+        ],
+        "orig_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Escort", "Home",
+                          "Maintenance", "Shop", "Visiting"])
+        ],
+        "dest_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Escort", "Home",
+                          "Maintenance", "Shop", "Visiting"])
+        ],
+        "orig_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "dest_mgra": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "parking_mgra": [
+            SetValidator([str(x) for x in range(-1, 23003)])
+        ],
+        "stop_period": [
+            SetValidator([str(x) for x in range(1, 41)])
+            # 1 - Before 5am
+            # 2-39 every half hour time slots
+            # 40 - After 12am
+        ],
+        "trip_mode": [
+            SetValidator([str(x) for x in range(1, 27)])
+            # 1 - Drive Alone Free
+            # 2 - Drive Alone Pay
+            # 3 - Shared Ride 2 General Purpose
+            # 4 - Shared Ride 2 HOV
+            # 5 - Shared Ride 2 Pay
+            # 6 - Shared Ride 3 General Purpose
+            # 7 - Shared Ride 3 HOV
+            # 8 - Shared Ride 3 Pay
+            # 9 - Walk
+            # 10 - Bike
+            # 11 - Walk to Local
+            # 12 - Walk to Express
+            # 13 - Walk to BRT
+            # 14 - Walk to Light Rail
+            # 15 - Walk to Commuter Rail
+            # 16 - Park Ride Local
+            # 17 - Park Ride Express
+            # 18 - Park Ride BRT
+            # 19 - Park Ride Light Rail
+            # 20 - Park Ride Commuter Rail
+            # 21 - Kiss Ride Local
+            # 22 - Kiss Ride Express
+            # 23 - Kiss Ride BRT
+            # 24 - Kiss Ride Light Rail
+            # 25 - Kiss Ride Commuter Rail
+            # 26 - School Bus
+        ],
+        "trip_board_tap": [
+            IntValidator()
+        ],
+        "trip_alight_tap": [
+            IntValidator()
+        ]
+    }
+
+
+# create vladiator class for output/personData_<<iteration>>.csv
+class PersonDataValidator(Vlad):
+    """ Vladiate validator class for the abm person data output
+            comma-delimited file specifying the file schema.
+
+        PersonDataValidator(
+            source=LocalFile("../test_files/new_files/output/personData_3.csv")
+            ).validate()
+        """
+    validators = {
+        # removed imf_choice, inmf_choice, ie_choice
+        "hh_id": [
+            IntValidator()
+        ],
+        "person_id": [
+            IntValidator(),
+            UniqueValidator()
+        ],
+        "person_num": [
+            IntValidator()
+            # could remove if joint trips participants used person_id
+            # why does this exist?
+        ],
+        "age": [
+            IntValidator()
+        ],
+        "gender": [
+            SetValidator(["f", "m"])
+        ],
+        "type": [
+            SetValidator(["Child too young for school", "Full-time worker",
+                          "Non-worker", "Part-time worker", "Retired",
+                          "Student of driving age",
+                          "Student of non-driving age", "University student"])
+        ],
+        "value_of_time": [
+            Ignore() # TBD
+        ],
+        "activity_pattern": [
+            SetValidator(["H", "M", "N"])
+        ],
+        "fp_choice": [
+            SetValidator([-1, 1, 2, 3])
+        ],
+        "reimb_pct": [
+            RangeValidator(-1, 1)
+        ]
+    }
+
+
+# create vladiator class for input/persons.csv
+class PersonsValidator(Vlad):
+    """ Vladiate validator class for the input person data
+            comma-delimited file specifying the file schema.
+
+        PersonDataValidator(
+            source=LocalFile("../test_files/new_files/input/persons.csv")
+            ).validate()
+        """
+    validators = {
+        # do not remove anything although not interested in everything
+        # only interested in hhid, perid,household_serial_no, military, rac1p
+        #     hisp, version
+        "hhid": [
+            IntValidator()
+        ],
+        "perid": [
+            IntValidator(),
+            UniqueValidator()
+            # ordered surrogate key
+        ],
+        "household_serial_no": [  # remove?
+            NotEmptyValidator()
+            # might want to use a regex validator?
+        ],
+        "pnum": [
+            IntValidator()
+            # person number within household
+            # necessary?
+        ],
+        "age": [
+            IntValidator()
+        ],
+        "sex": [
+            SetValidator([])
+        ],
+        "miltary": [
+            SetValidator([])
+        ],
+        "pemploy": [
+            SetValidator([])
+        ],
+        "pstudent": [
+            SetValidator([])
+        ],
+        "ptype": [
+            SetValidator([])
+        ],
+        "educ": [
+            SetValidator([])
+        ],
+        "grade": [
+            SetValidator([])
+        ],
+        "occen5": [
+            SetValidator([])
+        ],
+        "occsoc5": [
+            SetValidator([])
+        ],
+        "indcen": [
+            SetValidator([])
+        ],
+        "weeks": [
+            IntValidator()
+        ],
+        "hours": [
+            IntValidator()
+        ],
+        "rac1p": [
+            SetValidator([])
+        ],
+        "hisp": [
+            SetValidator([])
+        ],
+        "version": [
+            IntValidator()
+            # synthetic population version number
+        ]
+    }
+
+
+# create vladiator class for report/tapskim.csv
+class TapSkimValidator(Vlad):
+    """ Vladiate validator class for the tap skims output
+            comma-delimited file specifying the file schema.
+
+        TapSkimValidator(source=LocalFile(
+            "../test_files/new_files/report/tapskim.csv"
+            )).validate()
+        """
+    validators = {
+        # note the file is sorted on ORIG_TAP, DEST_TAP
+        # requires additional modes and number of transfers
+        "ORIG_TAP": [
+            IntValidator(),
+            UniqueValidator(unique_with=["DEST_TAP"])
+        ],
+        "DEST_TAP": [
+            IntValidator()
+        ],
+        "TOD": [
+            SetValidator(["EA", "AM", "MD", "PM", "EV"])
+            # ABM five time of day categories
+        ],
+        "TIME_INIT_WAIT_PREMIUM_TRANSIT": [
+            FloatValidator()
+            # initial wait time
+            # units?
+            # need to decide on significant digits
+            # what is premimum transit?
+        ],
+        "TIME_IVT_TIME_PREMIUM_TRANSIT": [
+            FloatValidator()
+            # in vehicle time
+            # units?
+            # need to decide on significant digits
+            # what is premimum transit?
+        ],
+        "TIME_WALK_TIME_PREMIUM_TRANSIT": [
+            FloatValidator()
+            # what is this?
+            # units?
+            # need to decide on significant digits
+            # what is premimum transit?
+        ],
+        "TIME_TRANSFER_TIME_PREMIUM_TRANSIT": [
+            FloatValidator()
+            # transfer time
+            # units?
+            # need to decide on significant digits
+            # what is premimum transit?
+        ],
+        "FARE_PREMIUM_TRANSIT": [
+            FloatValidator()
+            # cost in dollars ($XX.XX)
+            # what is premimum transit?
+        ]
+    }
+
+
+# create vladiator class for output/visitorTours.csv
 class VisitorToursValidator(Vlad):
     """ Vladiate validator class for the visitor model tours output
         comma-delimited file specifying the file schema.
 
     VisitorToursValidator(
-        source=LocalFile("../test_files/output/visitorTours.csv")
+        source=LocalFile("../test_files/new_files/output/visitorTours.csv")
         ).validate()
     """
     validators = {
+        # removed outboundStops, inboundStops
         "id": [
             IntValidator(),
             UniqueValidator()
@@ -461,26 +1237,22 @@ class VisitorToursValidator(Vlad):
             # 25 - Kiss Ride Commuter Rail
             # 26 - School Bus
             # 27 - Taxi
-        ],
-        "outboundStops": [  # remove
-            IntValidator()
-        ],
-        "inboundStops": [  # remove
-            IntValidator()
         ]
     }
 
 
-# create vladiator class for visitorTrips.csv
+# create vladiator class for output/visitorTrips.csv
 class VisitorTripsValidator(Vlad):
     """Vladiate validator class for the visitor model trips output
         comma-delimited file specifying the file schema.
 
-    VisitorTripsValidator(
-        source=LocalFile("test_files/visitorTrips.csv")
-        ).validate()
+    VisitorTripsValidator(source=LocalFile(
+        "../test_files/new_files/output/visitorTrips.csv"
+        )).validate()
     """
     validators = {
+        # removed originIsTourDestination, destinationIsTourDestination
+        # where is arriveTime?
         "tourID": [  # note the file is sorted by tourID, tripID
             IntValidator(),
             UniqueValidator(unique_with=["tripID"])
@@ -509,12 +1281,6 @@ class VisitorTripsValidator(Vlad):
             SetValidator([str(x) for x in range(1, 23003)])
         ],
         "inbound": [
-            SetValidator(["false", "true"])
-        ],
-        "originIsTourDestination": [
-            SetValidator(["false", "true"])
-        ],
-        "destinationIsTourDestination": [
             SetValidator(["false", "true"])
         ],
         "period": [
@@ -558,6 +1324,127 @@ class VisitorTripsValidator(Vlad):
         ],
         "alightingTap": [
             IntValidator()
+        ]
+    }
+
+
+# create vladiator class for output/walkMgraEquivMinutes.csv
+class WalkMgraEquivMinutesValidator(Vlad):
+    """Vladiate validator class for the MGRA-based walk time from MGRA-MGRA
+        in minutes comma-delimited file specifying the file schema.
+
+    WalkMgraEquivMinutesValidator(source=LocalFile(
+        "../test_files/new_files/output/walkMgraEquivMinutes.csv"
+        )).validate()
+    """
+    validators = {
+        "i": [  # note the file is sorted by (i, j)
+            SetValidator([str(x) for x in range(1, 23003)]),
+            UniqueValidator(unique_with=["j"])
+        ],
+        "j": [
+            SetValidator([str(x) for x in range(1, 23003)])
+        ],
+        "percieved": [  # note this is misspelled, why 3 digits? that's .006 seconds
+            FloatValidator()
+        ],
+        "actual": [  # why 3 digits? that's .006 seconds
+            FloatValidator()
+        ],
+        "gain": [
+            # very few records (<.1%) have a decimal value and all are .5, just keep it in feet make integer
+            FloatValidator()
+        ]
+    }
+
+
+# create vladiator class for output/walkMgraTapEquivMinutes.csv
+class WalkMgraTapEquivMinutesValidator(Vlad):
+    """Vladiate validator class for the MGRA-based walk time from MGRA-TAP
+        in minutes comma-delimited file specifying the file schema.
+
+    WalkMgraTapEquivMinutesValidator(source=LocalFile(
+        "../test_files/new_files/walkMgraTapEquivMinutes.csv"
+        )).validate()
+    """
+    validators = {
+        "mgra": [  # note the file is sorted by (mgra, tap)
+            SetValidator([str(x) for x in range(1, 23003)]),
+            UniqueValidator(unique_with=["tap"])
+        ],
+        "tap": [
+            IntValidator()
+        ],
+        "boardingPerceived": [  # why 3 digits? that's .006 seconds
+            FloatValidator()
+        ],
+        "boardingActual": [  # why 3 digits? that's .006 seconds
+            FloatValidator()
+        ],
+        "alightingPerceived": [  # why 3 digits? that's .006 seconds
+            FloatValidator()
+        ],
+        "alightingActual": [  # why 3 digits? that's .006 seconds
+            FloatValidator()
+        ],
+        "boardingGain": [
+            IntValidator()
+        ],
+        "alightingGain": [
+            IntValidator()
+        ]
+    }
+
+
+# create vladiator class for output/wsLocResults_<<iteration>>.csv
+class WorkSchoolLocationValidator(Vlad):
+    """Vladiate validator class for the work-school location choice model
+        output comma-delimited file specifying the file schema.
+
+    WorkSchoolLocationValidator(source=LocalFile(
+        "../test_files/new_files/output/wsLocResults_3.csv"
+        )).validate()
+    """
+    validators = {
+        # removed HHID, HomeMGRA, Income, PersonNum, PersonType, PersonAge
+        #    WorkLocationDistance, WorkLocationLogsum, SchoolLocationDistance
+        #    SchoolLocationLogsum
+        "PersonID": [
+            IntValidator(),
+            UniqueValidator()
+        ],
+        "EmploymentCategory": [
+            SetValidator(["1", "2", "3", "4"])
+            # 1 - Working Full Time worker
+            # 2 - Working Part Time workers, university student workers
+            #     and driving age student workers
+            # 3 - Non-working university students, non-workers
+            #     and driving age student workers
+            # 4 - Non-working pre-driving and preschool students
+        ],
+        "StudentCategory": [
+            SetValidator(["1", "2", "3"])
+            # 1 - Preschool and K-12
+            # 2 - University/College
+            # 3 - Workers/Non-workers/Preschool
+        ],
+        "WorkSegment": [
+            SetValidator([str(x) for x in chain(range(-1, 6), range(99998, 99999))])
+            # work district, definition?
+            # 99999 - non-workers
+        ],
+        "SchoolSegment": [
+            SetValidator([str(x) for x in chain(range(-1, 57), range(88887, 88888))])
+            # school district, definition?
+            # 88888 - non-school students
+        ],
+        "WorkLocation": [
+            SetValidator([str(x) for x in range(0, 23003)])
+            # includes 0 as missing
+        ],
+        "SchoolLocation": [
+            SetValidator([str(x) for x in range(0, 23003)])
+            # includes 0 as missing
         ]
     }
 
@@ -611,7 +1498,7 @@ class HwyTcadValidator(Vlad):
         "PLOT": [
             SetValidator(["0", "1"])
         ],
-        "SPHERE": [ # understand better and make set validator?
+        "SPHERE": [  # understand better and make set validator?
             IntValidator(),
             RangeValidator(0, 1999)
         ],
@@ -1812,66 +2699,5 @@ class CVMTripValidator(Vlad):
         super(CVMTripValidator, self).__init__(*args, **kwargs)
 
 
-# create vladiator class for walkMgraEquivMinutes.csv
-class WalkMgraEquivMinutesValidator(Vlad):
-    """Vladiate validator class for the MGRA-based walk time from MGRA-MGRA
-        in minutes comma-delimited file specifying the file schema.
 
-    WalkMgraEquivMinutesValidator(source=LocalFile("test_files/walkMgraEquivMinutes.csv")).validate()
-    """
-    validators = {
-        "i": [  # note the file is sorted by (i, j)
-            SetValidator([str(x) for x in range(1, 23003)]),
-            UniqueValidator(unique_with=["j"])
-        ],
-        "j": [
-            SetValidator([str(x) for x in range(1, 23003)])
-        ],
-        "percieved": [  # note this is misspelled, why 3 digits? that's .006 seconds
-            FloatValidator()
-        ],
-        "actual": [  # why 3 digits? that's .006 seconds
-            FloatValidator()
-        ],
-        "gain": [
-            # very few records (<.1%) have a decimal value and all are .5, just keep it in feet make integer
-            FloatValidator()
-        ]
-    }
-
-
-# create vladiator class for walkMgraTapEquivMinutes.csv
-class WalkMgraTapEquivMinutesValidator(Vlad):
-    """Vladiate validator class for the MGRA-based walk time from MGRA-TAP
-        in minutes comma-delimited file specifying the file schema.
-
-    WalkMgraTapEquivMinutesValidator(source=LocalFile("test_files/walkMgraTapEquivMinutes.csv")).validate()
-    """
-    validators = {
-        "mgra": [  # note the file is sorted by (mgra, tap)
-            SetValidator([str(x) for x in range(1, 23003)]),
-            UniqueValidator(unique_with=["tap"])
-        ],
-        "tap": [
-            IntValidator()
-        ],
-        "boardingPerceived": [  # why 3 digits? that's .006 seconds
-            FloatValidator()
-        ],
-        "boardingActual": [  # why 3 digits? that's .006 seconds
-            FloatValidator()
-        ],
-        "alightingPerceived": [  # why 3 digits? that's .006 seconds
-            FloatValidator()
-        ],
-        "alightingActual": [  # why 3 digits? that's .006 seconds
-            FloatValidator()
-        ],
-        "boardingGain": [
-            IntValidator()
-        ],
-        "alightingGain": [
-            IntValidator()
-        ]
-    }
 

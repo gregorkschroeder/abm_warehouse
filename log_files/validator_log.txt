@@ -1,14 +1,3 @@
 
-Validating VisitorToursValidator(source=LocalFile('../test_files/output/visitorTours.csv'))
-
-Validating VisitorToursValidator(source=LocalFile('../test_files/output/visitorTours.csv'))
-[0;31mFailed :([0m
-  SetValidator failed 73 time(s) (0.1%) on field: 'departTime'
-    Invalid fields: ['0']
-  SetValidator failed 73 time(s) (0.1%) on field: 'arriveTime'
-    Invalid fields: ['0']
-[0;31mFailed :([0m
-  SetValidator failed 73 time(s) (0.1%) on field: 'departTime'
-    Invalid fields: ['0']
-  SetValidator failed 73 time(s) (0.1%) on field: 'arriveTime'
-    Invalid fields: ['0']
+Validating IndividualToursValidator(source=LocalFile('../test_files/output/indivTourData_3_test.csv'))
+[0;32mPassed! :)[0m
