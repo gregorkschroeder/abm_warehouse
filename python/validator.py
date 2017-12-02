@@ -29,9 +29,9 @@ class AirportTripsValidator(Vlad):
     """ Vladiate validator class for the airport model trips output
         comma-delimited file specifying the file schema.
 
-    AirportTripsValidator(
-        source=LocalFile("../test_files/new_files/output/airport_out.csv")
-        ).validate()
+    AirportTripsValidator(source=LocalFile(
+        "../test_files/new_files/output/airport_out.csv"
+        )).validate()
     """
     validators = {
         # no changes from old file to new file
@@ -140,9 +140,9 @@ class BikeMgraValidator(Vlad):
     """ Vladiate validator class for the bike mgra logsums output
         comma-delimited file specifying the file schema.
 
-    BikeMgraValidator(
-        source=LocalFile("../test_files/new_files/output/bikeMgraLogsum.csv")
-        ).validate()
+    BikeMgraValidator(source=LocalFile(
+        "../test_files/new_files/output/bikeMgraLogsum.csv"
+        )).validate()
     """
     validators = {
         # note the file is sorted on i, j
@@ -168,9 +168,9 @@ class CommercialVehicleTripsValidator(Vlad):
     """ Vladiate validator class for the commercial vehicle model output
         comma-delimited file specifying the file schema.
 
-    CommercialVehicleTripsValidator(
-        source=LocalFile("../test_files/new_files/report/commtrip.csv")
-        ).validate()
+    CommercialVehicleTripsValidator(source=LocalFile(
+        "../test_files/new_files/report/commtrip.csv"
+        )).validate()
     """
     validators = {
         # note the file is sorted on ORIG_TAZ, DEST_TAZ
@@ -197,9 +197,9 @@ class CrossBorderToursValidator(Vlad):
     """ Vladiate validator class for the cross border model tour output
         comma-delimited file specifying the file schema.
 
-    CrossBorderToursValidator(
-        source=LocalFile("../test_files/new_files/output/crossBorderTours.csv")
-        ).validate()
+    CrossBorderToursValidator(source=LocalFile(
+        "../test_files/new_files/output/crossBorderTours.csv"
+        )).validate()
     """
     validators = {
         # removed originTAZ, destinationTAZ
@@ -259,9 +259,9 @@ class CrossBorderTripsValidator(Vlad):
     """ Vladiate validator class for the cross border model trip output
         comma-delimited file specifying the file schema.
 
-    CrossBorderTripsValidator(
-        source=LocalFile("../test_files/new_files/output/crossBorderTrips.csv")
-        ).validate()
+    CrossBorderTripsValidator(source=LocalFile(
+        "../test_files/new_files/output/crossBorderTrips.csv"
+        )).validate()
     """
     validators = {
         # removed originTAZ, destinationTAZ, originIsTourDestination,
@@ -343,9 +343,9 @@ class ExternalExternalValidator(Vlad):
     """ Vladiate validator class for the External-External trips model output
         comma-delimited file specifying the file schema.
 
-    ExternalExternalValidator(
-        source=LocalFile("../test_files/new_files/report/eetrip.csv")
-        ).validate()
+    ExternalExternalValidator(source=LocalFile(
+        "../test_files/new_files/report/eetrip.csv"
+        )).validate()
     """
     validators = {
         # note the file is sorted on ORIG_TAZ, DEST_TAZ
@@ -424,9 +424,9 @@ class HouseholdDataValidator(Vlad):
     """ Vladiate validator class for the household data output
         comma-delimited file specifying the file schema.
 
-    HouseholdDataValidator(
-        source=LocalFile("../test_files/new_files/output/householdData_3.csv")
-        ).validate()
+    HouseholdDataValidator(source=LocalFile(
+        "../test_files/new_files/output/householdData_3.csv"
+        )).validate()
     """
     validators = {
         # removed home_mgra, income, cdap_pattern, jtf_choice
@@ -457,8 +457,8 @@ class HouseholdsValidator(Vlad):
     """ Vladiate validator class for the households data input
         comma-delimited file specifying the file schema.
 
-    HouseholdsValidator(
-        source=LocalFile("../test_files/new_files/input/households.csv")
+    HouseholdsValidator(source=LocalFile(
+        "../test_files/new_files/input/households.csv")
         ).validate()
     """
     validators = {
@@ -551,9 +551,9 @@ class IndividualToursValidator(Vlad):
     """ Vladiate validator class for the individual model tours output
             comma-delimited file specifying the file schema.
 
-        IndividualToursValidator(
-            source=LocalFile("../test_files/new_files/output/indivTourData_3.csv")
-            ).validate()
+        IndividualToursValidator(source=LocalFile(
+            "../test_files/new_files/output/indivTourData_3.csv"
+            )).validate()
         """
     validators = {
         # note this file has no single ordered surrogate key,
@@ -635,9 +635,9 @@ class IndividualTripsValidator(Vlad):
     """ Vladiate validator class for the individual model trips output
             comma-delimited file specifying the file schema.
 
-        IndividualTripsValidator(
-            source=LocalFile("../test_files/new_files/output/indivTripData_3.csv")
-            ).validate()
+        IndividualTripsValidator(source=LocalFile(
+            "../test_files/new_files/output/indivTripData_3.csv"
+            )).validate()
         """
     validators = {
         # note this file has no single ordered surrogate key,
@@ -727,9 +727,9 @@ class InternalExternalTripsValidator(Vlad):
     """ Vladiate validator class for the internal external trips output
         comma-delimited file specifying the file schema.
 
-    InternalExternalTripsValidator(
-        source=LocalFile("../test_files/new_files/output/internalExternalTrips.csv")
-        ).validate()
+    InternalExternalTripsValidator(source=LocalFile(
+        "../test_files/new_files/output/internalExternalTrips.csv"
+        )).validate()
     """
     validators = {
         # note there is no unique identifier in this file, no tripID
@@ -789,9 +789,9 @@ class JointToursValidator(Vlad):
     """ Vladiate validator class for the joint model tours output
             comma-delimited file specifying the file schema.
 
-        JointToursValidator(
-            source=LocalFile("../test_files/new_files/output/jointTourData_3.csv")
-            ).validate()
+        JointToursValidator(source=LocalFile(
+            "../test_files/new_files/output/jointTourData_3.csv"
+            )).validate()
         """
     validators = {
         # note this file has no single ordered surrogate key,
@@ -872,9 +872,9 @@ class JointTripsValidator(Vlad):
     """ Vladiate validator class for the joint model trips output
             comma-delimited file specifying the file schema.
 
-        JointTripsValidator(
-            source=LocalFile("../test_files/new_files/output/jointTripData_3.csv")
-            ).validate()
+        JointTripsValidator(source=LocalFile(
+            "../test_files/new_files/output/jointTripData_3.csv"
+            )).validate()
         """
     validators = {
         # note this file has no single ordered surrogate key,
@@ -960,9 +960,9 @@ class PersonDataValidator(Vlad):
     """ Vladiate validator class for the abm person data output
             comma-delimited file specifying the file schema.
 
-        PersonDataValidator(
-            source=LocalFile("../test_files/new_files/output/personData_3.csv")
-            ).validate()
+        PersonDataValidator(source=LocalFile(
+            "../test_files/new_files/output/personData_3.csv"
+            )).validate()
         """
     validators = {
         # removed imf_choice, inmf_choice, ie_choice
@@ -991,7 +991,7 @@ class PersonDataValidator(Vlad):
                           "Student of non-driving age", "University student"])
         ],
         "value_of_time": [
-            Ignore() # TBD
+            Ignore()  # TBD
         ],
         "activity_pattern": [
             SetValidator(["H", "M", "N"])
@@ -1010,9 +1010,9 @@ class PersonsValidator(Vlad):
     """ Vladiate validator class for the input person data
             comma-delimited file specifying the file schema.
 
-        PersonDataValidator(
-            source=LocalFile("../test_files/new_files/input/persons.csv")
-            ).validate()
+        PersonDataValidator(source=LocalFile(
+            "../test_files/new_files/input/persons.csv"
+            )).validate()
         """
     validators = {
         # do not remove anything although not interested in everything
@@ -1151,9 +1151,9 @@ class VisitorToursValidator(Vlad):
     """ Vladiate validator class for the visitor model tours output
         comma-delimited file specifying the file schema.
 
-    VisitorToursValidator(
-        source=LocalFile("../test_files/new_files/output/visitorTours.csv")
-        ).validate()
+    VisitorToursValidator(source=LocalFile(
+        "../test_files/new_files/output/visitorTours.csv"
+        )).validate()
     """
     validators = {
         # removed outboundStops, inboundStops
@@ -1253,6 +1253,7 @@ class VisitorTripsValidator(Vlad):
     validators = {
         # removed originIsTourDestination, destinationIsTourDestination
         # where is arriveTime?
+        # note the column headers are misspelled in the file, destinationMGRAu and inbond
         "tourID": [  # note the file is sorted by tourID, tripID
             IntValidator(),
             UniqueValidator(unique_with=["tripID"])
@@ -1338,6 +1339,7 @@ class WalkMgraEquivMinutesValidator(Vlad):
         )).validate()
     """
     validators = {
+        # note perceived is spelled wrong in the header, percieved
         "i": [  # note the file is sorted by (i, j)
             SetValidator([str(x) for x in range(1, 23003)]),
             UniqueValidator(unique_with=["j"])
@@ -2697,7 +2699,3 @@ class CVMTripValidator(Vlad):
             ]
         }
         super(CVMTripValidator, self).__init__(*args, **kwargs)
-
-
-
-
