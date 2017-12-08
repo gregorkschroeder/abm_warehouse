@@ -15,6 +15,7 @@ except OSError as e:
     pass
 
 # overwrite the vladiate package logger to write to an output file
+# need to alter vlads to fail on first error or just minimal logging
 logs.logger = logging.getLogger("vlad_logger")
 logs.logger.setLevel(logging.INFO)
 sh = logging.FileHandler(filename=log_path, mode="a")
@@ -146,16 +147,13 @@ class BikeMgraValidator(Vlad):
     """
     validators = {
         # note the file is sorted on i, j
-        # no changes from old file to new file
+        # removed logsum
         # what is the assumed speed for bicycles in ABM model?
         "i": [
             SetValidator([str(x) for x in range(1, 23003)])
         ],
         "j": [
             SetValidator([str(x) for x in range(1, 23003)])
-        ],
-        "logsum": [
-            FloatValidator()
         ],
         "time": [
             FloatValidator()
@@ -310,6 +308,7 @@ class CrossBorderTripsValidator(Vlad):
             # 1 - Before 5am
             # 2-39 every half hour time slots
             # 40 - After 12am
+            # file has period = 0, why?
         ],
         "tripMode": [
             SetValidator([str(x) for x in range(1, 16)])
@@ -378,7 +377,7 @@ class ExternalInternalValidator(Vlad):
         # no changes from old file to new file
         "ORIG_TAZ": [
             SetValidator([str(x) for x in range(1, 4997)]),
-            UniqueValidator(unique_with=["DEST_TAZ"])
+            UniqueValidator(unique_with=["DEST_TAZ", "TOD", "PURPOSE"])
         ],
         "DEST_TAZ": [
             SetValidator([str(x) for x in range(1, 4997)])
@@ -518,6 +517,7 @@ class HouseholdsValidator(Vlad):
         ],
         "bldgsz": [
             SetValidator([str(x) for x in range(1, 11)])
+            # has 0 in it, fails validation what is this???
             # 1 - mobile home or trailer
             # 2 - one-family house detached
             # 3 - one-family house attached
@@ -642,7 +642,7 @@ class IndividualTripsValidator(Vlad):
     validators = {
         # note this file has no single ordered surrogate key,
         #     huge performance implications in the model
-        # removed hh_id, person_num, tour_purpose, tour_mode
+        # removed hh_id, person_num, tour_mode
         # why no orig and dest period?
         "person_id": [
             # there are a few different unique keys we can create due to
@@ -658,6 +658,11 @@ class IndividualTripsValidator(Vlad):
         ],
         "inbound": [
             SetValidator(["0", "1"])
+        ],
+        "tour_purpose": [
+            SetValidator(["Discretionary", "Eating Out", "Escort",
+                          "Maintenance", "School", "Shop", "University",
+                          "Visiting", "Work", "Work-Based"])
         ],
         "orig_purpose": [
             SetValidator(["Discretionary", "Eating Out", "Escort", "Home",
@@ -810,7 +815,7 @@ class JointToursValidator(Vlad):
             SetValidator(["JOINT_NON_MANDATORY"])
         ],
         "tour_purpose": [
-            SetValidator(["Discretionary", "Eating Out", "Shop", "Visiting"])
+            SetValidator(["Discretionary", "Eating Out", "Maintenance", "Shop", "Visiting"])
         ],
         "tour_participants": [
             NotEmptyValidator()
@@ -997,10 +1002,11 @@ class PersonDataValidator(Vlad):
             SetValidator(["H", "M", "N"])
         ],
         "fp_choice": [
-            SetValidator([-1, 1, 2, 3])
+            SetValidator(["-1", "1", "2", "3"])
         ],
         "reimb_pct": [
-            RangeValidator(-1, 1)
+            RangeValidator(-1, 8)
+            # too much precision, limit decimal places, allowed to go over 1? see values > 7
         ]
     }
 
@@ -1039,46 +1045,145 @@ class PersonsValidator(Vlad):
             IntValidator()
         ],
         "sex": [
-            SetValidator([])
+            SetValidator(["1", "2"])
+            # 1 - Male
+            # 2 - Female
         ],
         "miltary": [
-            SetValidator([])
+            SetValidator(["0", "1", "2", "3", "4"])
+            # note the column is misspelled
+            # 0 - N/A Less than 17 years old
+            # 1 - Yes, Now on Active Duty
+            # 2 - Yes, on Active Duty in Past, but Not Now
+            # 3 - No, Training for Reserves/National Guard Only
+            # 4 - No, Never Served in the Military
         ],
         "pemploy": [
-            SetValidator([])
+            SetValidator(["1", "2", "3", "4"])
+            # 1 - Employed Full-Time
+            # 2 - Employed Part-Time
+            # 3 - Unemployed or Not in Labor Force
+            # 4 - Less than 16 Years Old
+
         ],
         "pstudent": [
-            SetValidator([])
+            SetValidator(["1", "2", "3"])
+            # 1 - Pre K-12
+            # 2 - College Undergrad+Grad and Prof. School
+            # 3 - Not Attending School
         ],
         "ptype": [
-            SetValidator([])
+            SetValidator([str(x) for x in range(1, 9)])
+            # ptype_desc - age_range - work_status - school_status
+            # Full-time Worker - 18+ - Full-time - None
+            # Part-time Worker - 18+ - Part-time - None
+            # College Student - 18+ - Any - College+
+            # Non-working Adult - 18-64 - Unemployed - None
+            # Non-working Senior - 65+ Unemployed - None
+            # Driving Age Student - 16-17 - Any - Pre-college
+            # Non-driving Student - 6-16 - None - Pre-college
+            # Pre-school - 0-5 - None - None
         ],
         "educ": [
-            SetValidator([])
+            SetValidator([str(x) for x in range(0, 17)])
+            # 0 - N/A (less than 3 years old)
+            # 1 - No schooling completed
+            # 2 - Nursery school to grade 4
+            # 3 - Grade 5 or grade 6
+            # 4 - Grade 7 or grade 8
+            # 5 - Grade 9
+            # 6 - Grade 10
+            # 7 - Grade 11
+            # 8 - 12th grade, no diploma
+            # 9 - High school graduate
+            # 10 - Some college, but less than 1 year
+            # 11 - One or more years of college, no degree
+            # 12 - Associates degree
+            # 13 - Bachelors degree
+            # 14 - Masters degree
+            # 15 - Professional school degree
+            # 16 - Doctorate degree
+
         ],
         "grade": [
-            SetValidator([])
+            SetValidator([str(x) for x in range(0, 8)])
+            # 0 - N/A (not attending school)
+            # 1 - Nursery school/preschool
+            # 2 - Kindergarten
+            # 3 - Grade 1 to grade 4
+            # 4 - Grade 5 to grade 8
+            # 5 - Grade 9 to grade 12
+            # 6 - College undergraduate
+            # 7 - Graduate or professional school
         ],
         "occen5": [
-            SetValidator([])
+            NotEmptyValidator()
+            # census occupation code
         ],
         "occsoc5": [
-            SetValidator([])
+            NotEmptyValidator()
+            # detailed occupation codes defined by SOC system
         ],
         "indcen": [
-            SetValidator([])
+            NotEmptyValidator()
+            # industry code defined in PECAS
         ],
         "weeks": [
-            IntValidator()
+            SetValidator([str(x) for x in range(0, 7)])
+            # 0 - N/A (less than 16 years old/did not work in last 12 months)
+            # 1 - 50 to 52 weeks
+            # 2 - 48 to 49 weeks
+            # 3 - 40 to 47 weeks
+            # 4 - 27 to 39 weeks
+            # 5 - 14 to 26 weeks
+            # 6 - 13 weeks or less
         ],
         "hours": [
-            IntValidator()
+            SetValidator([str(x) for x in range(0, 100)])
+            # hours worked
+            # 0 - Not in universe (Under 16 years)
+            # 1-99+
         ],
         "rac1p": [
-            SetValidator([])
+            SetValidator([str(x) for x in range(1, 10)])
+            # 1 - White Alone
+            # 2 - Black or African American Alone
+            # 3 - American Indian Alone
+            # 4 - Alaska Native Alone
+            # 5 - American Indian and Alaska Native Tribes specified;
+            #   or American Indian or Alaska Native, not specified
+            #   and no other races
+            # 6 - Asian Alone
+            # 7 - Native Hawaiian and Other Pacific Islander Alone
+            # 8 - Some Other Race Alone
+            # 9 - Two or More Major Race Groups
         ],
         "hisp": [
-            SetValidator([])
+            SetValidator([str(x) for x in range(1, 25)])
+            # 1 - Not Spanish/Hispanic/Latino
+            # 2 - Mexican
+            # 3 - Puerto Rican
+            # 4 - Cuban
+            # 5 - Dominican
+            # 6 - Costa Rican
+            # 7 - Guatemalan
+            # 8 - Honduran
+            # 9 - Nicaraguan
+            # 10 - Panamanian
+            # 11 - Salvadoran
+            # 12 - Other Central American
+            # 13 - Argentinean
+            # 14 - Bolivian
+            # 15 - Chilean
+            # 16 - Colombian
+            # 17 - Ecuadorian
+            # 18 - Paraguayan
+            # 19 - Peruvian
+            # 20 - Uruguayan
+            # 21 - Venezuelan
+            # 22 - Other South American
+            # 23 - Spaniard
+            # 24 - All Other Spanish/Hispanic/Latino
         ],
         "version": [
             IntValidator()
@@ -1192,12 +1297,14 @@ class VisitorToursValidator(Vlad):
         ],
         "departTime": [
             SetValidator([str(x) for x in range(1, 41)])
+            # contains values = 0
             # 1 - Before 5am
             # 2-39 every half hour time slots
             # 40 - After 12am
         ],
         "arriveTime": [
             SetValidator([str(x) for x in range(1, 41)])
+            # contains values = 0
             # 1 - Before 5am
             # 2-39 every half hour time slots
             # 40 - After 12am
@@ -1286,6 +1393,7 @@ class VisitorTripsValidator(Vlad):
         ],
         "period": [
             SetValidator([str(x) for x in range(1, 41)])
+            # contains values = 0
             # 1 - Before 5am
             # 2-39 every half hour time slots
             # 40 - After 12am
@@ -1366,7 +1474,7 @@ class WalkMgraTapEquivMinutesValidator(Vlad):
         in minutes comma-delimited file specifying the file schema.
 
     WalkMgraTapEquivMinutesValidator(source=LocalFile(
-        "../test_files/new_files/walkMgraTapEquivMinutes.csv"
+        "../test_files/new_files/output/walkMgraTapEquivMinutes.csv"
         )).validate()
     """
     validators = {
@@ -1431,22 +1539,24 @@ class WorkSchoolLocationValidator(Vlad):
             # 3 - Workers/Non-workers/Preschool
         ],
         "WorkSegment": [
-            SetValidator([str(x) for x in chain(range(-1, 6), range(99998, 99999))])
+            SetValidator([str(x) for x in chain(range(-1, 6), range(99999, 100000))])
             # work district, definition?
             # 99999 - non-workers
         ],
         "SchoolSegment": [
-            SetValidator([str(x) for x in chain(range(-1, 57), range(88887, 88888))])
+            SetValidator([str(x) for x in chain(range(-1, 57), range(88888, 88889))])
             # school district, definition?
             # 88888 - non-school students
         ],
         "WorkLocation": [
-            SetValidator([str(x) for x in range(0, 23003)])
+            SetValidator([str(x) for x in chain(range(0, 23003), range(99999, 100000))])
             # includes 0 as missing
+            # 99999 - non-workers
         ],
         "SchoolLocation": [
-            SetValidator([str(x) for x in range(0, 23003)])
+            SetValidator([str(x) for x in chain(range(0, 23003), range(88888, 88889))])
             # includes 0 as missing
+            # 88888 - non-school students
         ]
     }
 
@@ -2699,3 +2809,4 @@ class CVMTripValidator(Vlad):
             ]
         }
         super(CVMTripValidator, self).__init__(*args, **kwargs)
+

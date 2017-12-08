@@ -1,3 +1,0 @@
-
-Validating IndividualToursValidator(source=LocalFile('../test_files/output/indivTourData_3_test.csv'))
-[0;32mPassed! :)[0m
