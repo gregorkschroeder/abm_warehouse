@@ -1,0 +1,91 @@
+
+Validating AirportTripsValidator(source=LocalFile('../test_files/new_files/output\airport_out_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating BikeMgraValidator(source=LocalFile('../test_files/new_files/output\bikeMgraLogsum_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating CommercialVehicleTripsValidator(source=LocalFile('../test_files/new_files/report\commtrip_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating CommercialVehicleTripsValidator(source=LocalFile('../test_files/new_files/report\commtrip_split_2.csv'))
+[0;32mPassed! :)[0m
+
+Validating CommercialVehicleTripsValidator(source=LocalFile('../test_files/new_files/report\commtrip_split_3.csv'))
+[0;32mPassed! :)[0m
+
+Validating CommercialVehicleTripsValidator(source=LocalFile('../test_files/new_files/report\commtrip_split_4.csv'))
+[0;32mPassed! :)[0m
+
+Validating CommercialVehicleTripsValidator(source=LocalFile('../test_files/new_files/report\commtrip_split_5.csv'))
+[0;32mPassed! :)[0m
+
+Validating CrossBorderToursValidator(source=LocalFile('../test_files/new_files/output\crossBorderTours_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating CrossBorderTripsValidator(source=LocalFile('../test_files/new_files/output\crossBorderTrips_split_1.csv'))
+[0;31mFailed :([0m
+  SetValidator failed 2 time(s) (0.0%) on field: 'period'
+    Invalid fields: ['0']
+
+Validating ExternalExternalValidator(source=LocalFile('../test_files/new_files/report\eetrip_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating ExternalInternalValidator(source=LocalFile('../test_files/new_files/report\eitrip_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating HouseholdDataValidator(source=LocalFile('../test_files/new_files/output\householdData_3_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating HouseholdsValidator(source=LocalFile('../test_files/new_files/input\households_split_1.csv'))
+[0;31mFailed :([0m
+  SetValidator failed 78967 time(s) (6.7%) on field: 'bldgsz'
+    Invalid fields: ['0']
+
+Validating IndividualToursValidator(source=LocalFile('../test_files/new_files/output\indivTourData_3_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating IndividualTripsValidator(source=LocalFile('../test_files/new_files/output\indivTripData_3_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating InternalExternalTripsValidator(source=LocalFile('../test_files/new_files/output\internalExternalTrips_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating JointToursValidator(source=LocalFile('../test_files/new_files/output\jointTourData_3_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating JointTripsValidator(source=LocalFile('../test_files/new_files/output\jointTripData_3_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating PersonDataValidator(source=LocalFile('../test_files/new_files/output\personData_3_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating PersonsValidator(source=LocalFile('../test_files/new_files/input\persons_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating TapSkimValidator(source=LocalFile('../test_files/new_files/report\tapskim_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating TapSkimValidator(source=LocalFile('../test_files/new_files/report\tapskim_split_2.csv'))
+[0;32mPassed! :)[0m
+
+Validating VisitorToursValidator(source=LocalFile('../test_files/new_files/output\visitorTours_split_1.csv'))
+[0;31mFailed :([0m
+  SetValidator failed 73 time(s) (0.1%) on field: 'departTime'
+    Invalid fields: ['0']
+  SetValidator failed 73 time(s) (0.1%) on field: 'arriveTime'
+    Invalid fields: ['0']
+
+Validating VisitorTripsValidator(source=LocalFile('../test_files/new_files/output\visitorTrips_split_1.csv'))
+[0;31mFailed :([0m
+  SetValidator failed 150 time(s) (0.1%) on field: 'period'
+    Invalid fields: ['0']
+
+Validating WalkMgraEquivMinutesValidator(source=LocalFile('../test_files/new_files/output\walkMgraEquivMinutes_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating WalkMgraTapEquivMinutesValidator(source=LocalFile('../test_files/new_files/output\walkMgraTapEquivMinutes_split_1.csv'))
+[0;32mPassed! :)[0m
+
+Validating WorkSchoolLocationValidator(source=LocalFile('../test_files/new_files/output\wsLocResults_3_split_1.csv'))
+[0;32mPassed! :)[0m

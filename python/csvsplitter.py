@@ -1,4 +1,4 @@
-def split(filehandler, delimiter=",", row_limit=100000,
+def split(filehandler, delimiter=",", row_limit=10000000,
           output_name_template="output_%s.csv", output_path=".",
           keep_headers=True):
     """
@@ -15,7 +15,7 @@ def split(filehandler, delimiter=",", row_limit=100000,
 
     Example usage:
 
-        >> split(open("test_files/Batting.csv", "r"))
+        >> split(open("../test_files/new_files/report/tapskim.csv", "r"))
 
     """
     import csv
@@ -46,3 +46,4 @@ def split(filehandler, delimiter=",", row_limit=100000,
             if keep_headers:
                 current_out_writer.writerow(headers)
         current_out_writer.writerow(row)
+

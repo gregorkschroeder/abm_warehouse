@@ -1206,7 +1206,7 @@ class TapSkimValidator(Vlad):
         # requires additional modes and number of transfers
         "ORIG_TAP": [
             IntValidator(),
-            UniqueValidator(unique_with=["DEST_TAP"])
+            UniqueValidator(unique_with=["DEST_TAP", "TOD"])
         ],
         "DEST_TAP": [
             IntValidator()
