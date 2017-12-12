@@ -29,6 +29,7 @@ files = [FileInfo(name="airport_out", folder="output/", validator_name="AirportT
          FileInfo(name="personData_" + iteration, folder="output/", validator_name="PersonDataValidator"),
          FileInfo(name="persons", folder="input/", validator_name="PersonsValidator"),
          FileInfo(name="tapskim", folder="report/", validator_name="TapSkimValidator"),
+         FileInfo(name="tazskim", folder="report/", validator_name="TazSkimValidator"),
          FileInfo(name="visitorTours", folder="output/", validator_name="VisitorToursValidator"),
          FileInfo(name="visitorTrips", folder="output/", validator_name="VisitorTripsValidator"),
          FileInfo(name="walkMgraEquivMinutes", folder="output/", validator_name="WalkMgraEquivMinutesValidator"),

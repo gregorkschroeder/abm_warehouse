@@ -173,6 +173,7 @@ CREATE TABLE [staging].[indivTripData] (
     [tour_id]  tinyint NOT NULL,
     [stop_id] smallint NOT NULL,
     [inbound] bit NOT NULL,
+    [tour_purpose] nchar(15) NOT NULL,
     [orig_purpose] nchar(15) NOT NULL,
     [dest_purpose] nchar(15) NOT NULL,
     [orig_mgra] int NOT NULL,
@@ -254,7 +255,7 @@ CREATE TABLE [staging].[personData] (
     [age] tinyint NOT NULL,
     [gender] nchar(1) NOT NULL,
     [type] nchar(30) NOT NULL,
-    [value_of_time] float NOT NULL /* determine data type */
+    [value_of_time] float NOT NULL, /* determine data type */
     [activity_pattern] nchar(1) NOT NULL,
     [fp_choice] smallint NOT NULL,
     [reimb_pct] decimal(8,6) NOT NULL,
@@ -302,23 +303,38 @@ CREATE TABLE [staging].[tapskim] (
     [TIME_WALK_TIME_PREMIUM_TRANSIT] decimal(6,4) NOT NULL,
     [TIME_TRANSFER_TIME_PREMIUM_TRANSIT] decimal(5,2) NOT NULL,
     [FARE_PREMIUM_TRANSIT] decimal(4,2) NOT NULL,
-	CONSTRAINT pk_staging_tapskim PRIMARY KEY([ORIG_TAP], [DEST_TAP]))
+	CONSTRAINT pk_staging_tapskim PRIMARY KEY([ORIG_TAP], [DEST_TAP], [TOD]))
 WITH (DATA_COMPRESSION = PAGE)
 
 
-PRINT 'create tapskim staging table'
-IF OBJECT_ID('staging.tapskim','U') IS NOT NULL
-DROP TABLE [staging].[tapskim]
-CREATE TABLE [staging].[tapskim] (
-	[ORIG_TAP] int NOT NULL,
-    [DEST_TAP] int NOT NULL,
+PRINT 'create tazskim staging table'
+IF OBJECT_ID('staging.tazskim','U') IS NOT NULL
+DROP TABLE [staging].[tazskim]
+CREATE TABLE [staging].[tazskim] (
+	[ORIG_TAZ] int NOT NULL,
+    [DEST_TAZ] int NOT NULL,
     [TOD] nchar(2) NOT NULL,
-    [TIME_INIT_WAIT_PREMIUM_TRANSIT] decimal(4,2) NOT NULL,
-    [TIME_IVT_TIME_PREMIUM_TRANSIT] decimal(8,4) NOT NULL,
-    [TIME_WALK_TIME_PREMIUM_TRANSIT] decimal(6,4) NOT NULL,
-    [TIME_TRANSFER_TIME_PREMIUM_TRANSIT] decimal(5,2) NOT NULL,
-    [FARE_PREMIUM_TRANSIT] decimal(4,2) NOT NULL,
-	CONSTRAINT pk_staging_tapskim PRIMARY KEY([ORIG_TAP], [DEST_TAP]))
+    [DIST_DRIVE_ALONE_TOLL] decimal(12,6) NOT NULL,
+    [TIME_DRIVE_ALONE_TOLL] decimal(12,6) NOT NULL,
+    [COST_DRIVE_ALONE_TOLL] decimal(4,2) NOT NULL,
+    [DIST_DRIVE_ALONE_FREE] decimal(12,6) NOT NULL,
+    [TIME_DRIVE_ALONE_FREE] decimal(12,6) NOT NULL,
+    [DIST_HOV2_TOLL] decimal(12,6) NOT NULL,
+    [TIME_HOV2_TOLL] decimal(12,6) NOT NULL,
+    [COST_HOV2_TOLL] decimal(4,2) NOT NULL,
+    [DIST_HOV2_FREE] decimal(12,6) NOT NULL,
+    [TIME_HOV2_FREE] decimal(12,6) NOT NULL,
+    [DIST_HOV3_TOLL] decimal(12,6) NOT NULL,
+    [TIME_HOV3_TOLL] decimal(12,6) NOT NULL,
+    [COST_HOV3_TOLL] decimal(4,2) NOT NULL,
+    [DIST_HOV3_FREE] decimal(12,6) NOT NULL,
+    [TIME_HOV3_FREE] decimal(12,6) NOT NULL,
+    [DIST_TRUCK_HH_TOLL] decimal(12,6) NOT NULL,
+    [TIME_TRUCK_HH_TOLL] decimal(12,6) NOT NULL,
+    [COST_TRUCK_HH_TOLL] decimal(4,2) NOT NULL,
+    [DIST_TRUCK_HH_FREE] decimal(12,6) NOT NULL,
+    [TIME_TRUCK_HH_FREE] decimal(12,6) NOT NULL,
+	CONSTRAINT pk_staging_tazskim PRIMARY KEY([ORIG_TAZ], [DEST_TAZ], [TOD]))
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -344,7 +360,7 @@ WITH (DATA_COMPRESSION = PAGE)
 PRINT 'create visitorTrips staging table'
 IF OBJECT_ID('staging.visitorTrips','U') IS NOT NULL
 DROP TABLE [staging].[visitorTrips]
-CREATE TABLE [staging].[visitor_trips] (
+CREATE TABLE [staging].[visitorTrips] (
 	[tourID] int NOT NULL,
 	[tripID] tinyint NOT NULL,
     [originPurp] smallint NOT NULL,
@@ -368,7 +384,7 @@ CREATE TABLE [staging].[walkMgraEquivMinutes] (
 	[i] int NOT NULL,
 	[j] int NOT NULL,
 	[percieved] decimal(6,3) NOT NULL,
-	[percieved] decimal(6,3) NOT NULL,
+	[actual] decimal(6,3) NOT NULL,
 	[gain] decimal(4,1) NOT NULL,
 	CONSTRAINT pk_staging_walkMgraEquivMinutes PRIMARY KEY([i], [j]))
 WITH (DATA_COMPRESSION = PAGE)

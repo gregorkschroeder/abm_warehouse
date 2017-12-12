@@ -1202,7 +1202,7 @@ class TapSkimValidator(Vlad):
             )).validate()
         """
     validators = {
-        # note the file is sorted on ORIG_TAP, DEST_TAP
+        # note the file is sorted on ORIG_TAP, DEST_TAP, TOD
         # requires additional modes and number of transfers
         "ORIG_TAP": [
             IntValidator(),
@@ -1247,6 +1247,92 @@ class TapSkimValidator(Vlad):
             FloatValidator()
             # cost in dollars ($XX.XX)
             # what is premimum transit?
+        ]
+    }
+
+
+# create vladiator class for report/tazskim.csv
+class TazSkimValidator(Vlad):
+    """ Vladiate validator class for the taz skims output
+            comma-delimited file specifying the file schema.
+
+        TapSkimValidator(source=LocalFile(
+            "../test_files/new_files/report/tazskim.csv"
+            )).validate()
+        """
+    validators = {
+        # note the file is sorted on ORIG_TAZ, DEST_TAZ, TOD
+        # requires additional modes and number of transfers
+        "ORIG_TAZ": [
+            SetValidator([str(x) for x in range(13, 4997)]),
+            UniqueValidator(unique_with=["DEST_TAZ", "TOD"])
+        ],
+        "DEST_TAZ": [
+            SetValidator([str(x) for x in range(13, 4997)])
+        ],
+        "TOD": [
+            SetValidator(["EA", "AM", "MD", "PM", "EV"])
+            # ABM five time of day categories
+        ],
+        "DIST_DRIVE_ALONE_TOLL": [
+            FloatValidator()
+        ],
+        "TIME_DRIVE_ALONE_TOLL": [
+            FloatValidator()
+        ],
+        "COST_DRIVE_ALONE_TOLL": [
+            FloatValidator()
+        ],
+        "DIST_DRIVE_ALONE_FREE": [
+            FloatValidator()
+        ],
+        "TIME_DRIVE_ALONE_FREE": [
+            FloatValidator()
+        ],
+        "DIST_HOV2_TOLL": [
+            FloatValidator()
+        ],
+        "TIME_HOV2_TOLL": [
+            FloatValidator()
+        ],
+        "COST_HOV2_TOLL": [
+            FloatValidator()
+        ],
+        "DIST_HOV2_FREE": [
+            FloatValidator()
+        ],
+        "TIME_HOV2_FREE": [
+            FloatValidator()
+        ],
+        "DIST_HOV3_TOLL": [
+            FloatValidator()
+        ],
+        "TIME_HOV3_TOLL": [
+            FloatValidator()
+        ],
+        "COST_HOV3_TOLL": [
+            FloatValidator()
+        ],
+        "DIST_HOV3_FREE": [
+            FloatValidator()
+        ],
+        "TIME_HOV3_FREE": [
+            FloatValidator()
+        ],
+        "DIST_TRUCK_HH_TOLL": [
+            FloatValidator()
+        ],
+        "TIME_TRUCK_HH_TOLL": [
+            FloatValidator()
+        ],
+        "COST_TRUCK_HH_TOLL": [
+            FloatValidator()
+        ],
+        "DIST_TRUCK_HH_FREE": [
+            FloatValidator()
+        ],
+        "TIME_TRUCK_HH_FREE": [
+            FloatValidator()
         ]
     }
 
