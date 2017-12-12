@@ -69,23 +69,4 @@ Validating TapSkimValidator(source=LocalFile('../test_files/new_files/report\tap
 Validating TapSkimValidator(source=LocalFile('../test_files/new_files/report\tapskim_split_2.csv'))
 [0;32mPassed! :)[0m
 
-Validating VisitorToursValidator(source=LocalFile('../test_files/new_files/output\visitorTours_split_1.csv'))
-[0;31mFailed :([0m
-  SetValidator failed 73 time(s) (0.1%) on field: 'departTime'
-    Invalid fields: ['0']
-  SetValidator failed 73 time(s) (0.1%) on field: 'arriveTime'
-    Invalid fields: ['0']
-
-Validating VisitorTripsValidator(source=LocalFile('../test_files/new_files/output\visitorTrips_split_1.csv'))
-[0;31mFailed :([0m
-  SetValidator failed 150 time(s) (0.1%) on field: 'period'
-    Invalid fields: ['0']
-
-Validating WalkMgraEquivMinutesValidator(source=LocalFile('../test_files/new_files/output\walkMgraEquivMinutes_split_1.csv'))
-[0;32mPassed! :)[0m
-
-Validating WalkMgraTapEquivMinutesValidator(source=LocalFile('../test_files/new_files/output\walkMgraTapEquivMinutes_split_1.csv'))
-[0;32mPassed! :)[0m
-
-Validating WorkSchoolLocationValidator(source=LocalFile('../test_files/new_files/output\wsLocResults_3_split_1.csv'))
-[0;32mPassed! :)[0m
+Validating TazSkimValidator(source=LocalFile('../test_files/new_files/report\tazskim_split_1.csv'))
