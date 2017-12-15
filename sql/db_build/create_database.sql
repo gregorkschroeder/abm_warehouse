@@ -4,13 +4,13 @@ GO
 -- create database primary filegroup and log
 CREATE DATABASE $(db_name) ON  PRIMARY
 ( NAME = N'$(db_name)_primary',
-  FILENAME = $(mdf) ,
+  FILENAME = N'$(db_path)$(db_name)_primary.ndf',
   SIZE = 5GB ,
-  MAXSIZE = 50GB ,
+  MAXSIZE = 25GB ,
   FILEGROWTH = 5GB)
 LOG ON
 ( NAME = N'$(db_name)_log',
-  FILENAME = $(ldf) ,
+  FILENAME = N'$(log_path)$(db_name)_log.ldf',
   SIZE = 5GB ,
   MAXSIZE = 50GB ,
   FILEGROWTH = 5GB)
@@ -18,23 +18,22 @@ GO
 
 -- set compatibility to sql server 2016
 ALTER DATABASE $(db_name) SET COMPATIBILITY_LEVEL = 130
-GO
 
 -- set database options
 IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 BEGIN
 EXEC $(db_name).[dbo].[sp_fulltext_database] @action = 'enable'
 END
-GO
-
 ALTER DATABASE $(db_name) SET ANSI_NULL_DEFAULT OFF
 ALTER DATABASE $(db_name) SET ANSI_NULLS OFF
 ALTER DATABASE $(db_name) SET ANSI_PADDING OFF
 ALTER DATABASE $(db_name) SET ANSI_WARNINGS OFF
 ALTER DATABASE $(db_name) SET ARITHABORT OFF
 ALTER DATABASE $(db_name) SET AUTO_CLOSE OFF
+
 -- incremental statistics on
 ALTER DATABASE $(db_name) SET AUTO_CREATE_STATISTICS ON (INCREMENTAL = ON)
+
 ALTER DATABASE $(db_name) SET AUTO_SHRINK OFF
 ALTER DATABASE $(db_name) SET AUTO_UPDATE_STATISTICS ON
 ALTER DATABASE $(db_name) SET CURSOR_CLOSE_ON_COMMIT OFF
@@ -74,7 +73,7 @@ ALTER DATABASE $(db_name) ADD FILEGROUP scenario_fg_1;
 -- add three files to the filegroup
 ALTER DATABASE $(db_name) ADD FILE (
 	NAME = scenario_file_1_1,
-	FILENAME = $(scen_file_string_1),
+	FILENAME = N'$(db_path)scenario_file_1_1.ndf',
 	SIZE = 5GB,
 	MAXSIZE = 15GB,
 	FILEGROWTH = 5GB) TO FILEGROUP scenario_fg_1;
@@ -82,7 +81,7 @@ ALTER DATABASE $(db_name) ADD FILE (
 -- add three files to the filegroup
 ALTER DATABASE $(db_name) ADD FILE (
 	NAME = scenario_file_1_2,
-	FILENAME = $(scen_file_string_2),
+	FILENAME = N'$(db_path)scenario_file_1_2.ndf',
 	SIZE = 5GB,
 	MAXSIZE = 15GB,
 	FILEGROWTH = 5GB) TO FILEGROUP scenario_fg_1;
@@ -90,10 +89,10 @@ ALTER DATABASE $(db_name) ADD FILE (
 -- add three files to the filegroup
 ALTER DATABASE $(db_name) ADD FILE (
 	NAME = scenario_file_1_3,
-	FILENAME = $(scen_file_string_3),
-	SIZE = 15GB,
+	FILENAME = N'$(db_path)scenario_file_1_3.ndf',
+	SIZE = 5GB,
 	MAXSIZE = 15GB,
-	FILEGROWTH = 0) TO FILEGROUP scenario_fg_1;
+	FILEGROWTH = 5GB) TO FILEGROUP scenario_fg_1;
 END
 
 -- Step 2. Create partition function
@@ -118,12 +117,44 @@ GO
 -- Create filegroup for reference and non-partitioned tables
 IF NOT EXISTS (SELECT name FROM sys.filegroups WHERE name = N'reference_fg')
 BEGIN
-ALTER DATABASE $(db_name) ADD FILEGROUP ref_fg;
+ALTER DATABASE $(db_name) ADD FILEGROUP reference_fg;
 ALTER DATABASE $(db_name) ADD FILE
-( NAME = ref_file,
-  FILENAME = $(ref_file_string),
+( NAME = reference_file,
+  FILENAME = N'$(db_path)reference_file.ndf',
   SIZE = 5GB,
-  MAXSIZE = 25GB,
-  FILEGROWTH = 5GB) TO FILEGROUP ref_fg
+  MAXSIZE = 50GB,
+  FILEGROWTH = 5GB) TO FILEGROUP reference_fg
+END
+GO
+
+-- Create filegroup for staging tables
+IF NOT EXISTS (SELECT name FROM sys.filegroups WHERE name = N'staging_fg')
+BEGIN
+-- add initial scenario filegroup
+ALTER DATABASE $(db_name) ADD FILEGROUP staging_fg;
+
+-- add three files to the filegroup
+ALTER DATABASE $(db_name) ADD FILE (
+	NAME = staging_file_1_1,
+	FILENAME = N'$(db_path)staging_file_1_1.ndf',
+	SIZE = 5GB,
+	MAXSIZE = 15GB,
+	FILEGROWTH = 5GB) TO FILEGROUP staging_fg;
+
+-- add three files to the filegroup
+ALTER DATABASE $(db_name) ADD FILE (
+	NAME = staging_file_1_2,
+	FILENAME = N'$(db_path)staging_file_1_2.ndf',
+	SIZE = 5GB,
+	MAXSIZE = 15GB,
+	FILEGROWTH = 5GB) TO FILEGROUP staging_fg;
+
+-- add three files to the filegroup
+ALTER DATABASE $(db_name) ADD FILE (
+	NAME = staging_file_1_3,
+	FILENAME = N'$(db_path)staging_file_1_3.ndf',
+	SIZE = 5GB,
+	MAXSIZE = 15GB,
+	FILEGROWTH = 5GB) TO FILEGROUP staging_fg;
 END
 GO

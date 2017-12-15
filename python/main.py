@@ -51,7 +51,10 @@ for file_info in files:
         # validate the file using the appropriate Vladiator Vlad class
         # need to add statement to fail if validator class does not pass
         # need to alter Vlad class to fail on first error but log that first error
-        getattr(validator, file_info.validator_name)(source=validator.LocalFile(split_file)).validate()
+        if file_info.name in ["commtrip", "tapskim", "tazskim"]:
+            pass
+        else:
+            getattr(validator, file_info.validator_name)(source=validator.LocalFile(split_file)).validate()
 
         # bulk insert the file to the database
 

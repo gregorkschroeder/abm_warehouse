@@ -171,7 +171,8 @@ class CommercialVehicleTripsValidator(Vlad):
         )).validate()
     """
     validators = {
-        # note the file is sorted on ORIG_TAZ, DEST_TAZ
+        # note the file is sorted on TOD, ORIG_TAZ, DEST_TAZ
+        # but not alphabetical TOD (EA-AM-MD-PM-EV)
         # no changes from old file to new file
         # mode is assumed can we write it out somehow?
         "ORIG_TAZ": [
@@ -373,7 +374,6 @@ class ExternalInternalValidator(Vlad):
         )).validate()
     """
     validators = {
-        # note the file is sorted on ORIG_TAZ, DEST_TAZ
         # no changes from old file to new file
         "ORIG_TAZ": [
             SetValidator([str(x) for x in range(1, 4997)]),
@@ -1202,7 +1202,8 @@ class TapSkimValidator(Vlad):
             )).validate()
         """
     validators = {
-        # note the file is sorted on ORIG_TAP, DEST_TAP, TOD
+        # note the file is sorted on TOD, ORIG_TAZ, DEST_TAZ
+        # but not alphabetical TOD (EA-AM-MD-PM-EV)
         # requires additional modes and number of transfers
         "ORIG_TAP": [
             IntValidator(),
@@ -1261,7 +1262,8 @@ class TazSkimValidator(Vlad):
             )).validate()
         """
     validators = {
-        # note the file is sorted on ORIG_TAZ, DEST_TAZ, TOD
+        # note the file is sorted on TOD, ORIG_TAZ, DEST_TAZ
+        # but not alphabetical TOD (EA-AM-MD-PM-EV)
         # requires additional modes and number of transfers
         "ORIG_TAZ": [
             SetValidator([str(x) for x in range(13, 4997)]),

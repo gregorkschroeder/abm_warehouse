@@ -1,8 +1,10 @@
-USE [ws]
-
-
 BEGIN TRANSACTION
 
+-- Create staging schema if it does not exist
+IF NOT EXISTS (SELECT schema_name FROM information_schema.schemata WHERE schema_name='staging')
+BEGIN
+	EXEC (N'CREATE SCHEMA [staging]')
+END
 
 PRINT 'create airport_out staging table'
 IF OBJECT_ID('staging.airport_out','U') IS NOT NULL
@@ -19,9 +21,10 @@ CREATE TABLE [staging].[airport_out] (
     [destinationMGRA] int NOT NULL,
     [tripMode] smallint NOT NULL,
     [arrivalMode] smallint NOT NULL,
-    [boardingTAP] tinyint NOT NULL,
+    [boardingTAP] int NOT NULL,
 	[alightingTAP] int NOT NULL,
 	CONSTRAINT pk_staging_airportout PRIMARY KEY([id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -33,6 +36,7 @@ CREATE TABLE [staging].[bikeMgraLogsum] (
     [j] int NOT NULL,
 	[time] decimal(6,3) NOT NULL,
 	CONSTRAINT pk_staging_bikeMgraLogsum PRIMARY KEY([i], [j]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -44,7 +48,8 @@ CREATE TABLE [staging].[commtrip] (
     [DEST_TAZ] int NOT NULL,
 	[TOD] nchar(2) NOT NULL,
 	[TRIPS_COMMVEH] decimal(12, 6) NOT NULL,
-	CONSTRAINT pk_staging_commtrip PRIMARY KEY([ORIG_TAZ], [DEST_TAZ]))
+	CONSTRAINT pk_staging_commtrip PRIMARY KEY([ORIG_TAZ], [DEST_TAZ], [TOD]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -62,6 +67,7 @@ CREATE TABLE [staging].[crossBorderTours] (
     [destinationMGRA] int NOT NULL,
 	[tourMode] tinyint NOT NULL,
 	CONSTRAINT pk_staging_crossBorderTours PRIMARY KEY([id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -81,6 +87,7 @@ CREATE TABLE [staging].[crossBorderTrips] (
 	[boardingTap] int NOT NULL,
 	alightingTap int NOT NULL,
 	CONSTRAINT pk_staging_crossBorderTrips PRIMARY KEY([tourID], [tripID]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -92,6 +99,7 @@ CREATE TABLE [staging].[eetrip] (
     [DEST_TAZ] int NOT NULL,
 	[TRIPS_EE] decimal(12, 6) NOT NULL,
 	CONSTRAINT pk_staging_eetrip PRIMARY KEY([ORIG_TAZ], [DEST_TAZ]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -103,14 +111,15 @@ CREATE TABLE [staging].[eitrip] (
     [DEST_TAZ] int NOT NULL,
     [TOD] nchar(2) NOT NULL,
     [PURPOSE] nchar(7) NOT NULL,
-	[TRIPS_DAN] decimal(12, 6) NOT NULL,
-	[TRIPS_S2N] decimal(12, 6) NOT NULL,
-	[TRIPS_S3N] decimal(12, 6) NOT NULL,
-	[TRIPS_DAT] decimal(12, 6) NOT NULL,
-	[TRIPS_S2T] decimal(12, 6) NOT NULL,
-	[TRIPS_S3T] decimal(12, 6) NOT NULL,
+	[TRIPS_DAN] decimal(20, 16) NOT NULL,
+	[TRIPS_S2N] decimal(20, 16) NOT NULL,
+	[TRIPS_S3N] decimal(20, 16) NOT NULL,
+	[TRIPS_DAT] decimal(20, 16) NOT NULL,
+	[TRIPS_S2T] decimal(20, 16) NOT NULL,
+	[TRIPS_S3T] decimal(20, 16) NOT NULL,
 	CONSTRAINT pk_staging_eitrip PRIMARY KEY([ORIG_TAZ], [DEST_TAZ],
 	    [TOD], [PURPOSE]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -122,6 +131,7 @@ CREATE TABLE [staging].[householdData] (
     [autos] tinyint NOT NULL,
     [transponder] bit NOT NULL,
 	CONSTRAINT pk_staging_householdData PRIMARY KEY([hh_id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -129,8 +139,8 @@ PRINT 'create households staging table'
 IF OBJECT_ID('staging.households','U') IS NOT NULL
 DROP TABLE [staging].[households]
 CREATE TABLE [staging].[households] (
-	[hh_id] int NOT NULL,
-    [household_serial_no] int NOT NULL,
+	[hhid] int NOT NULL,
+    [household_serial_no] bigint NOT NULL,
     [taz] int NOT NULL,
     [mgra] int NOT NULL,
     [hinccat1] tinyint NOT NULL,
@@ -142,8 +152,9 @@ CREATE TABLE [staging].[households] (
     [bldgsz] tinyint NOT NULL,
     [unittype] tinyint NOT NULL,
     [version] int NOT NULL,
-    [poverty] decimal(6,3) NOT NULL,
-	CONSTRAINT pk_staging_households PRIMARY KEY([hh_id]))
+    [poverty] decimal(7,4) NOT NULL,
+	CONSTRAINT pk_staging_households PRIMARY KEY([hhid]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -162,6 +173,7 @@ CREATE TABLE [staging].[indivTourData] (
     [tour_mode] tinyint NOT NULL,
 	CONSTRAINT pk_staging_indivTourData PRIMARY KEY(
 	[person_id], [tour_id], [tour_purpose]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -185,6 +197,7 @@ CREATE TABLE [staging].[indivTripData] (
     [trip_alight_tap] int NOT NULL,
 	CONSTRAINT pk_staging_indivTripData PRIMARY KEY(
 	    [person_id], [tour_id], [stop_id], [inbound], [tour_purpose]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -193,7 +206,7 @@ IF OBJECT_ID('staging.internalExternalTrips','U') IS NOT NULL
 DROP TABLE [staging].[internalExternalTrips]
 CREATE TABLE [staging].[internalExternalTrips] (
     [id] int IDENTITY(1,1) NOT NULL,
-    [tourID] tinyint NOT NULL,
+    [tourID] int NOT NULL,
     [originMGRA] int NOT NULL,
     [destinationMGRA] int NOT NULL,
     [inbound] nchar(5) NOT NULL,
@@ -202,6 +215,7 @@ CREATE TABLE [staging].[internalExternalTrips] (
     [boardingTap] int NOT NULL,
     [alightingTap] int NOT NULL,
 	CONSTRAINT pk_staging_internalExternalTrips PRIMARY KEY([id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -220,6 +234,7 @@ CREATE TABLE [staging].[jointTourData] (
     [end_period] tinyint NOT NULL,
     [tour_mode] tinyint NOT NULL,
 	CONSTRAINT pk_staging_jointTourData PRIMARY KEY([hh_id], [tour_id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -242,6 +257,7 @@ CREATE TABLE [staging].[jointTripData] (
     [trip_alight_tap] int NOT NULL,
 	CONSTRAINT pk_staging_jointTripData PRIMARY KEY(
 	[hh_id], [tour_id], [stop_id], [inbound]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -260,6 +276,7 @@ CREATE TABLE [staging].[personData] (
     [fp_choice] smallint NOT NULL,
     [reimb_pct] decimal(8,6) NOT NULL,
 	CONSTRAINT pk_staging_personData PRIMARY KEY([person_id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -288,6 +305,7 @@ CREATE TABLE [staging].[persons] (
     [hisp] tinyint NOT NULL,
     [version] int NOT NULL,
 	CONSTRAINT pk_staging_persons PRIMARY KEY([perid]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -298,12 +316,13 @@ CREATE TABLE [staging].[tapskim] (
 	[ORIG_TAP] int NOT NULL,
     [DEST_TAP] int NOT NULL,
     [TOD] nchar(2) NOT NULL,
-    [TIME_INIT_WAIT_PREMIUM_TRANSIT] decimal(4,2) NOT NULL,
+    [TIME_INIT_WAIT_PREMIUM_TRANSIT] decimal(8,4) NOT NULL,
     [TIME_IVT_TIME_PREMIUM_TRANSIT] decimal(8,4) NOT NULL,
-    [TIME_WALK_TIME_PREMIUM_TRANSIT] decimal(6,4) NOT NULL,
-    [TIME_TRANSFER_TIME_PREMIUM_TRANSIT] decimal(5,2) NOT NULL,
+    [TIME_WALK_TIME_PREMIUM_TRANSIT] decimal(8,4) NOT NULL,
+    [TIME_TRANSFER_TIME_PREMIUM_TRANSIT] decimal(8,4) NOT NULL,
     [FARE_PREMIUM_TRANSIT] decimal(4,2) NOT NULL,
 	CONSTRAINT pk_staging_tapskim PRIMARY KEY([ORIG_TAP], [DEST_TAP], [TOD]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -316,25 +335,26 @@ CREATE TABLE [staging].[tazskim] (
     [TOD] nchar(2) NOT NULL,
     [DIST_DRIVE_ALONE_TOLL] decimal(12,6) NOT NULL,
     [TIME_DRIVE_ALONE_TOLL] decimal(12,6) NOT NULL,
-    [COST_DRIVE_ALONE_TOLL] decimal(4,2) NOT NULL,
+    [COST_DRIVE_ALONE_TOLL] int NOT NULL,
     [DIST_DRIVE_ALONE_FREE] decimal(12,6) NOT NULL,
     [TIME_DRIVE_ALONE_FREE] decimal(12,6) NOT NULL,
     [DIST_HOV2_TOLL] decimal(12,6) NOT NULL,
     [TIME_HOV2_TOLL] decimal(12,6) NOT NULL,
-    [COST_HOV2_TOLL] decimal(4,2) NOT NULL,
+    [COST_HOV2_TOLL] int NOT NULL,
     [DIST_HOV2_FREE] decimal(12,6) NOT NULL,
     [TIME_HOV2_FREE] decimal(12,6) NOT NULL,
     [DIST_HOV3_TOLL] decimal(12,6) NOT NULL,
     [TIME_HOV3_TOLL] decimal(12,6) NOT NULL,
-    [COST_HOV3_TOLL] decimal(4,2) NOT NULL,
+    [COST_HOV3_TOLL] int NOT NULL,
     [DIST_HOV3_FREE] decimal(12,6) NOT NULL,
     [TIME_HOV3_FREE] decimal(12,6) NOT NULL,
     [DIST_TRUCK_HH_TOLL] decimal(12,6) NOT NULL,
     [TIME_TRUCK_HH_TOLL] decimal(12,6) NOT NULL,
-    [COST_TRUCK_HH_TOLL] decimal(4,2) NOT NULL,
+    [COST_TRUCK_HH_TOLL] int NOT NULL,
     [DIST_TRUCK_HH_FREE] decimal(12,6) NOT NULL,
     [TIME_TRUCK_HH_FREE] decimal(12,6) NOT NULL,
 	CONSTRAINT pk_staging_tazskim PRIMARY KEY([ORIG_TAZ], [DEST_TAZ], [TOD]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -354,6 +374,7 @@ CREATE TABLE [staging].[visitorTours] (
     [destinationMGRA] int NOT NULL,
     [tourMode] tinyint NOT NULL,
 	CONSTRAINT pk_staging_visitorTours PRIMARY KEY([id]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -373,6 +394,7 @@ CREATE TABLE [staging].[visitorTrips] (
 	[boardingTap] int NOT NULL,
 	[alightingTap] int NOT NULL,
 	CONSTRAINT pk_staging_visitorTrips PRIMARY KEY([tourID], [tripID]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -385,8 +407,9 @@ CREATE TABLE [staging].[walkMgraEquivMinutes] (
 	[j] int NOT NULL,
 	[percieved] decimal(6,3) NOT NULL,
 	[actual] decimal(6,3) NOT NULL,
-	[gain] decimal(4,1) NOT NULL,
+	[gain] decimal(5,1) NOT NULL,
 	CONSTRAINT pk_staging_walkMgraEquivMinutes PRIMARY KEY([i], [j]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -403,6 +426,7 @@ CREATE TABLE [staging].[walkMgraTapEquivMinutes] (
 	[boardingGain] decimal(4,1) NOT NULL,
 	[alightingGain] decimal(4,1) NOT NULL,
 	CONSTRAINT pk_staging_walkMgraTapEquivMinutes PRIMARY KEY([mgra], [tap]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
@@ -418,6 +442,7 @@ CREATE TABLE [staging].[wsLocResults] (
     [WorkLocation] int NOT NULL,
     [SchoolLocation] int NOT NULL,
 	CONSTRAINT pk_staging_wsLocResults PRIMARY KEY([PersonID]))
+ON staging_fg
 WITH (DATA_COMPRESSION = PAGE)
 
 
