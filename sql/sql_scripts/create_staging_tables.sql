@@ -227,7 +227,7 @@ CREATE TABLE [staging].[jointTourData] (
     [tour_id]  tinyint NOT NULL,
     [tour_category] nchar(20) NOT NULL,
     [tour_purpose] nchar(15) NOT NULL,
-    [tour_participants] nchar(20) NOT NULL,
+    [tour_participants] nchar(50) NOT NULL,
     [orig_mgra] int NOT NULL,
     [dest_mgra] int NOT NULL,
     [start_period] tinyint NOT NULL,

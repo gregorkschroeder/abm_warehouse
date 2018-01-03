@@ -99,7 +99,7 @@ END
 IF NOT EXISTS (SELECT name FROM sys.partition_functions WHERE name = N'scenario_partition')
 BEGIN
 -- create the partition function
-CREATE PARTITION FUNCTION scenario_partition (smallint) AS
+CREATE PARTITION FUNCTION scenario_partition (int) AS
 -- (x < 1, 1 <= x)
 RANGE RIGHT FOR VALUES (1)
 END
