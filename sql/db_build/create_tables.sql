@@ -112,13 +112,13 @@ GO
 CREATE TABLE [dimension].[household] (
 	[scenario_id] int NOT NULL,
 	[household_id] int NOT NULL,
-	[household_income] int NOT NULL,
+	[household_income] int NULL,
 	[household_income_category] nchar(20) NOT NULL,
-	[household_size] tinyint NOT NULL,
+	[household_size] nchar(20) NOT NULL,
 	[household_unit_type] nchar(50) NOT NULL,
 	[household_autos] nchar(20) NOT NULL,
 	[household_transponder] nchar(20) NOT NULL,
-	[household_poverty] decimal(7,4) NOT NULL,
+	[household_poverty] decimal(7,4) NULL,
 	[geography_household_location_id] int NOT NULL,
 	INDEX ccsi_household CLUSTERED COLUMNSTORE)
 ON scenario_scheme([scenario_id])
