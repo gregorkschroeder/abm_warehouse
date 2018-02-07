@@ -245,7 +245,7 @@ CREATE TABLE [dimension].[person] (
 	[person_employ_status] nchar(50) NOT NULL,
 	[person_student_status] nchar(50) NOT NULL,
 	[person_military_status] nchar(50) NOT NULL,
-	[person_abm_person_type] nchar(25) NOT NULL,
+	[person_abm_person_type] nchar(50) NOT NULL,
 	[person_hispanic] nchar(25) NOT NULL,
 	[person_race] nchar(150) NOT NULL,
 	[person_work_from_home] nchar(25) NOT NULL,
