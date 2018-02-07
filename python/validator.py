@@ -88,7 +88,7 @@ class AirportTripsValidator(Vlad):
         ],
         "tripMode": [
             SetValidator([str(x) for x in chain(range(-99, -98), range(1, 26))])
-            # -99 - Uknown
+            # -99 - Unknown
             # 1 - Drive Alone Free
             # 2 - Drive Alone Pay
             # 3 - Shared Ride 2 General Purpose
@@ -1629,22 +1629,22 @@ class WorkSchoolLocationValidator(Vlad):
         "WorkSegment": [
             SetValidator([str(x) for x in chain(range(-1, 6), range(99999, 100000))])
             # work district, definition?
-            # 99999 - non-workers
+            # 99999 - work from home workers
         ],
         "SchoolSegment": [
             SetValidator([str(x) for x in chain(range(-1, 57), range(88888, 88889))])
             # school district, definition?
-            # 88888 - non-school students
+            # 88888 - home-schooled students
         ],
         "WorkLocation": [
             SetValidator([str(x) for x in chain(range(0, 23003), range(99999, 100000))])
             # includes 0 as missing
-            # 99999 - non-workers
+            # 99999 - work from home workers
         ],
         "SchoolLocation": [
             SetValidator([str(x) for x in chain(range(0, 23003), range(88888, 88889))])
             # includes 0 as missing
-            # 88888 - non-school students
+            # 88888 - home-schooled students
         ]
     }
 
